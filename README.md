@@ -91,22 +91,6 @@ Backend API: `http://localhost:5000`
 | Gıda Verisi | Open Food Facts API |
 | Auth | JWT (JSON Web Tokens) |
 
-## 🔐 Ortam Değişkenleri
-
-`backend-core/.env.example` dosyasını kopyalayarak `.env` oluşturun:
-
-```env
-PORT=5000
-NODE_ENV=development
-MONGODB_URI=mongodb://127.0.0.1:27017/akilli_gida_platformu
-GEMINI_API_KEY=your_gemini_api_key_here
-JWT_SECRET=your_super_secret_jwt_key_here
-```
-
-## 📄 Lisans
-
-Bu proje MIT lisansı altında lisanslanmıştır.
-
 ---
 
 *MindBite — Sağlıklı yaşamın akıllı yardımcısı* 🌱
