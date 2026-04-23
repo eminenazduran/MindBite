@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+
+<html class="light" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Luminous Pantry - Ürün Analizi</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-secondary-fixed": "#001945",
+              "secondary-container": "#6292fd",
+              "on-secondary-container": "#002b6b",
+              "surface-variant": "#e1e3e4",
+              "on-background": "#191c1d",
+              "surface-container-highest": "#e1e3e4",
+              "outline-variant": "#bec9c4",
+              "on-tertiary": "#ffffff",
+              "on-primary-fixed-variant": "#005143",
+              "primary-container": "#006d5b",
+              "on-surface": "#191c1d",
+              "primary-fixed-dim": "#81d6c0",
+              "on-primary-fixed": "#00201a",
+              "on-tertiary-container": "#62f696",
+              "tertiary-fixed-dim": "#4ae183",
+              "surface-bright": "#f8fafb",
+              "on-tertiary-fixed-variant": "#005228",
+              "error": "#ba1a1a",
+              "on-error-container": "#93000a",
+              "surface-tint": "#006b59",
+              "on-secondary": "#ffffff",
+              "tertiary-container": "#006f38",
+              "on-primary": "#ffffff",
+              "tertiary-fixed": "#6bfe9c",
+              "on-primary-container": "#96ebd5",
+              "on-error": "#ffffff",
+              "on-tertiary-fixed": "#00210c",
+              "outline": "#6e7975",
+              "primary-fixed": "#9df3dc",
+              "secondary": "#1d59c1",
+              "inverse-primary": "#81d6c0",
+              "surface": "#f8fafb",
+              "secondary-fixed-dim": "#b0c6ff",
+              "surface-container-low": "#f2f4f5",
+              "tertiary": "#005429",
+              "inverse-on-surface": "#eff1f2",
+              "secondary-fixed": "#d9e2ff",
+              "on-secondary-fixed-variant": "#00419c",
+              "inverse-surface": "#2e3132",
+              "error-container": "#ffdad6",
+              "surface-dim": "#d8dadb",
+              "on-surface-variant": "#3e4945",
+              "surface-container-lowest": "#ffffff",
+              "surface-container-high": "#e6e8e9",
+              "primary": "#005344",
+              "surface-container": "#eceeef",
+              "background": "#f8fafb"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .glass-card {
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+      }
+      .hero-gradient {
+        background: linear-gradient(135deg, #005344 0%, #006d5b 100%);
+      }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface min-h-screen pb-24 md:pb-0">
+<!-- Top Navigation Shell -->
+<nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl shadow-[0_16px_48px_rgba(25,28,29,0.06)]">
+<div class="flex justify-between items-center px-8 py-4 max-w-7xl mx-auto">
+<div class="text-xl font-bold tracking-tighter text-emerald-900 font-headline">Luminous Pantry</div>
+<div class="hidden md:flex items-center gap-8 font-headline font-semibold tracking-tight">
+<a class="text-slate-600 hover:text-emerald-900 transition-all duration-300" href="#">Ana Sayfa</a>
+<a class="text-slate-600 hover:text-emerald-900 transition-all duration-300" href="#">Panelim</a>
+<a class="text-emerald-700 border-b-2 border-emerald-700 pb-1" href="#">Ürünler</a>
+<a class="text-slate-600 hover:text-emerald-900 transition-all duration-300" href="#">Profil</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-emerald-900 hover:bg-emerald-50/50 p-2 rounded-full transition-all">notifications</button>
+<button class="material-symbols-outlined text-emerald-900 hover:bg-emerald-50/50 p-2 rounded-full transition-all">account_circle</button>
+</div>
+</div>
+</nav>
+<main class="pt-24 px-6 md:px-8 max-w-7xl mx-auto space-y-10">
+<!-- Hero Section: Product Focus -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+<div class="lg:col-span-5 relative group">
+<div class="absolute -inset-4 bg-primary/5 rounded-xl blur-2xl group-hover:bg-primary/10 transition-all"></div>
+<img alt="Organik Atıştırmalık Ürün" class="relative w-full aspect-square object-cover rounded-xl shadow-2xl" data-alt="close-up of a premium organic granola pack with clean packaging design on a white marble surface with soft natural light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAt4B96QPfNe33cwujGLIuMj3bv4vIMIpA7mwwmfPeZ96tkT41Nsv9p1aXqkpb8rQ7sogVjALmZ0I-a-qjtuH2YZOS0evM-uC-0rTv366MEBOXzoePtRc1lNap7_QWek96pXUVOU53U58j12vPeTc3-cN0V4db8KV5k07MbLH0tlOg_RdSR7a6vdAvxS_065BLnyIZHSI7Fe-3zydwIj7G0ujHTbvl6UdZsPFYYXmsTP_Vd2EyzCODg7fdPtwU64_ugAKAnVqgnFRc"/>
+</div>
+<div class="lg:col-span-7 space-y-8">
+<div>
+<span class="inline-flex items-center px-4 py-1.5 rounded-full bg-secondary-container text-on-secondary-container font-headline font-bold text-sm tracking-wide mb-4">
+                        AKILLI ANALİZ
+                    </span>
+<h1 class="text-4xl md:text-5xl lg:text-6xl font-headline font-extrabold text-primary tracking-tight leading-tight">
+                        Organik Orman Meyveli Granola
+                    </h1>
+<p class="text-lg text-on-surface-variant mt-4 max-w-xl">
+                        Yüksek lifli, rafine şeker içermeyen doğal içerikli atıştırmalık. Profilinize göre güvenlik analizini aşağıda bulabilirsiniz.
+                    </p>
+</div>
+<!-- Personalized Status Banner -->
+<div class="p-8 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center gap-6 shadow-sm">
+<div class="w-16 h-16 rounded-full bg-primary flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div>
+<h3 class="text-xl font-headline font-bold text-primary">Senin İçin Güvenli</h3>
+<p class="text-on-surface-variant">Bu ürün kişisel sağlık profilinize ve hedeflerinize %94 uyumludur.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Analysis Grid -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+<!-- Safety Score Card -->
+<div class="glass-card p-8 rounded-xl border border-outline-variant/15 flex flex-col justify-between min-h-[280px] hover:scale-[1.02] transition-transform shadow-[0_16px_48px_rgba(25,28,29,0.06)]">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-primary text-3xl">verified_user</span>
+<span class="text-on-surface-variant font-label font-medium">Güvenlik Skoru</span>
+</div>
+<div class="text-center py-4">
+<div class="text-6xl font-headline font-extrabold text-primary">92<span class="text-2xl text-on-surface-variant">/100</span></div>
+</div>
+<div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[92%]"></div>
+</div>
+</div>
+<!-- Allergen Alerts Card -->
+<div class="glass-card p-8 rounded-xl border border-outline-variant/15 flex flex-col justify-between min-h-[280px] hover:scale-[1.02] transition-transform shadow-[0_16px_48px_rgba(25,28,29,0.06)]">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-error text-3xl">warning</span>
+<span class="text-on-surface-variant font-label font-medium">Alerjen Uyarıları</span>
+</div>
+<div class="space-y-3">
+<div class="flex items-center gap-2 text-error font-headline font-bold">
+<span class="material-symbols-outlined text-xl">dangerous</span>
+<span>Gluten İçerir</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-headline font-medium">
+<span class="material-symbols-outlined text-xl text-secondary">info</span>
+<span>Eser miktarda fındık</span>
+</div>
+</div>
+<div class="pt-4 border-t border-outline-variant/10">
+<p class="text-xs text-on-surface-variant font-label italic">Profilinizde gluten hassasiyeti işaretlenmemiş.</p>
+</div>
+</div>
+<!-- Ingredient Quality Card -->
+<div class="glass-card p-8 rounded-xl border border-outline-variant/15 flex flex-col justify-between min-h-[280px] hover:scale-[1.02] transition-transform shadow-[0_16px_48px_rgba(25,28,29,0.06)]">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-secondary text-3xl">biotech</span>
+<span class="text-on-surface-variant font-label font-medium">İçerik Kalitesi</span>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-center">
+<span class="font-headline font-bold">Doğallık</span>
+<span class="text-primary font-bold">Yüksek</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-headline font-bold">İşlenme</span>
+<span class="text-secondary font-bold">Düşük</span>
+</div>
+</div>
+<button class="w-full py-3 rounded-full bg-surface-container-high text-primary font-headline font-bold text-sm hover:bg-primary-fixed transition-colors">
+                    Tümünü Gör
+                </button>
+</div>
+<!-- Personalized Health Alert -->
+<div class="bg-secondary p-8 rounded-xl flex flex-col justify-between min-h-[280px] text-white hover:scale-[1.02] transition-transform shadow-xl">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">health_metrics</span>
+<span class="font-label font-medium opacity-80 text-sm uppercase tracking-widest">Sağlık Analizi</span>
+</div>
+<div class="space-y-2">
+<h4 class="text-2xl font-headline font-extrabold leading-tight">Yüksek Lif Desteği</h4>
+<p class="text-sm opacity-90 font-body">Bu ürün günlük lif ihtiyacınızın %25'ini tek porsiyonda karşılar.</p>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-tertiary-fixed animate-pulse"></span>
+<span class="text-xs font-label font-bold uppercase tracking-tighter">Aktif Tavsiye</span>
+</div>
+</div>
+</section>
+<!-- Detailed Breakdown -->
+<section class="pb-20">
+<h2 class="text-3xl font-headline font-extrabold text-primary mb-10 text-center md:text-left">İçerik Analiz Detayları</h2>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+<!-- Ingredients List -->
+<div class="lg:col-span-2 space-y-4">
+<div class="glass-card p-6 rounded-lg flex items-center justify-between group hover:bg-surface-container-low transition-all">
+<div class="flex items-center gap-6">
+<span class="w-12 h-12 flex items-center justify-center rounded-full bg-emerald-100 text-primary">
+<span class="material-symbols-outlined">psychology_alt</span>
+</span>
+<div>
+<h5 class="font-headline font-bold text-lg">Tam Yulaf Ezmesi</h5>
+<p class="text-sm text-on-surface-variant">Karmaşık karbonhidrat ve beta-glukan kaynağı.</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">grade</span>
+</div>
+<div class="glass-card p-6 rounded-lg flex items-center justify-between group hover:bg-surface-container-low transition-all">
+<div class="flex items-center gap-6">
+<span class="w-12 h-12 flex items-center justify-center rounded-full bg-emerald-100 text-primary">
+<span class="material-symbols-outlined">water_drop</span>
+</span>
+<div>
+<h5 class="font-headline font-bold text-lg">Elma Suyu Konsantresi</h5>
+<p class="text-sm text-on-surface-variant">Doğal tatlandırıcı, rafine şeker içermez.</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">grade</span>
+</div>
+<div class="glass-card p-6 rounded-lg flex items-center justify-between group hover:bg-surface-container-low transition-all">
+<div class="flex items-center gap-6">
+<span class="w-12 h-12 flex items-center justify-center rounded-full bg-slate-100 text-slate-500">
+<span class="material-symbols-outlined">science</span>
+</span>
+<div>
+<h5 class="font-headline font-bold text-lg">Bitkisel Yağ</h5>
+<p class="text-sm text-on-surface-variant">Düşük miktarda ilave edilmiş bitkisel yağ.</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-secondary">info</span>
+</div>
+</div>
+<!-- Summary Chart Visual -->
+<div class="lg:col-span-1 glass-card p-8 rounded-xl border border-outline-variant/15 flex flex-col items-center justify-center space-y-8 relative overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-secondary/5 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+<h3 class="font-headline font-bold text-xl text-center">Besin Dağılımı</h3>
+<div class="relative w-48 h-48 flex items-center justify-center">
+<svg class="w-full h-full transform -rotate-90">
+<circle class="text-surface-container-high" cx="96" cy="96" fill="transparent" r="80" stroke="currentColor" stroke-width="12"></circle>
+<circle class="text-primary" cx="96" cy="96" fill="transparent" r="80" stroke="currentColor" stroke-dasharray="502" stroke-dashoffset="150" stroke-width="12"></circle>
+<circle class="text-secondary" cx="96" cy="96" fill="transparent" r="80" stroke="currentColor" stroke-dasharray="502" stroke-dashoffset="400" stroke-width="12"></circle>
+</svg>
+<div class="absolute text-center">
+<span class="block text-3xl font-headline font-extrabold text-primary">345</span>
+<span class="text-xs font-label font-bold text-on-surface-variant uppercase">KCAL / 100G</span>
+</div>
+</div>
+<div class="w-full space-y-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-full bg-primary"></div>
+<span class="text-sm font-medium">Karbonhidrat</span>
+</div>
+<span class="text-sm font-bold">65%</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-full bg-secondary"></div>
+<span class="text-sm font-medium">Protein</span>
+</div>
+<span class="text-sm font-bold">12%</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer Shell -->
+<footer class="bg-slate-50 mt-20 py-12 px-8">
+<div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+<div class="font-headline font-bold text-emerald-900 text-lg">Luminous Pantry</div>
+<div class="flex gap-8">
+<a class="text-slate-500 hover:text-emerald-700 font-body text-sm transition-all underline-offset-4 hover:underline decoration-emerald-500/30" href="#">Hakkımızda</a>
+<a class="text-slate-500 hover:text-emerald-700 font-body text-sm transition-all underline-offset-4 hover:underline decoration-emerald-500/30" href="#">Gizlilik</a>
+<a class="text-slate-500 hover:text-emerald-700 font-body text-sm transition-all underline-offset-4 hover:underline decoration-emerald-500/30" href="#">İletişim</a>
+</div>
+<div class="text-slate-500 font-body text-sm opacity-80">© 2024 Luminous Pantry. Tüm Hakları Saklıdır.</div>
+</div>
+</footer>
+<!-- Bottom Navigation Shell (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-6 pb-6 pt-3 bg-white/85 backdrop-blur-2xl shadow-[0_-16px_48px_rgba(25,28,29,0.06)] rounded-t-xl z-50">
+<a class="flex flex-col items-center justify-center text-slate-500 px-5 py-2 hover:text-emerald-700 transition-all" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-body text-[10px] font-medium mt-1">Ana Sayfa</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 px-5 py-2 hover:text-emerald-700 transition-all" href="#">
+<span class="material-symbols-outlined">monitoring</span>
+<span class="font-body text-[10px] font-medium mt-1">Takip</span>
+</a>
+<div class="flex flex-col items-center justify-center bg-emerald-100/50 text-emerald-900 rounded-full px-5 py-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">analytics</span>
+<span class="font-body text-[10px] font-medium mt-1">Analiz</span>
+</div>
+<a class="flex flex-col items-center justify-center text-slate-500 px-5 py-2 hover:text-emerald-700 transition-all" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-body text-[10px] font-medium mt-1">Profil</span>
+</a>
+</nav>
+</body></html>
