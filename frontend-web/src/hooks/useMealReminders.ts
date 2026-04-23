@@ -42,7 +42,7 @@ export function useMealReminders() {
       try {
         new Notification('MindBite — Öğün Hatırlatması', {
           body: `Saat ${timeStr}. Öğününü uygulamaya ekleyip sağlık puanını güncelle.`,
-          icon: '/vite.svg',
+          icon: '/favicon.svg',
           tag: 'mindbite-meal-reminder'
         });
       } catch {
