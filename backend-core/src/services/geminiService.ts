@@ -45,7 +45,7 @@ export const fetchFromOpenFoodFacts = async (barcode: string) => {
 export const analyzeWithGemini = async (rawProductData: any): Promise<FoodAnalysisData> => {
     try {
         const genAI = getGenAI();
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash', generationConfig: { responseMimeType: "application/json" } });
+        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash', generationConfig: { responseMimeType: "application/json" } });
 
         const prompt = `
 Aşağıda Open Food Facts API'den gelen ham bir gıda ürünü verisi var.
@@ -261,7 +261,7 @@ const fallbackMealFromDescription = (description: string): MealItem[] => {
 export const analyzeNaturalMeal = async (description: string): Promise<MealItem[]> => {
     try {
         const genAI = getGenAI();
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", generationConfig: { responseMimeType: "application/json" } });
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash", generationConfig: { responseMimeType: "application/json" } });
 
         const prompt = `
 Aşağıdaki yemek açıklamasını analiz et ve içindeki her bir yiyecek için tahmini besin değerlerini (toplam porsiyon miktarı için) hesapla.

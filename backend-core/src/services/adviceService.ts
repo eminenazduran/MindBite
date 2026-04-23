@@ -22,7 +22,7 @@ export const generateNutritionalAdvice = async (
 ): Promise<NutritionalAdvice> => {
   try {
     const genAI = getGenAI();
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash', generationConfig: { responseMimeType: "application/json" } });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash', generationConfig: { responseMimeType: "application/json" } });
 
     const prompt = `
 Aşağıda bir kullanıcının bugünkü toplam beslenme verileri ve hedefleri var. 
