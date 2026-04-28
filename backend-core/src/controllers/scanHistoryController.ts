@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { ScanHistory } from '../models/ScanHistory';
+import { detectRiskyAdditives } from '../services/riskyAdditives';
 
 const formatResponse = <T>(status: 'success' | 'error', message: string, data?: T) => ({
   status,
@@ -14,11 +15,21 @@ export const getScanHistory = async (req: Request, res: Response) => {
     const limit = parseInt(req.query.limit as string) || 20;
 
     const history = await ScanHistory.find({ userId })
-      .populate('foodId', 'barcode productName calories protein carbohydrates fat ingredients')
+      .populate('foodId', 'barcode productName calories protein carbohydrates fat ingredients eCodes allergens isGeneric')
       .sort({ createdAt: -1 })
-      .limit(limit);
+      .limit(limit)
+      .lean();
 
-    res.status(200).json(formatResponse('success', `${history.length} tarama kaydı bulundu.`, history));
+    // Her kayıt için zararlı/şüpheli madde listesi (cache değil, her zaman güncel)
+    const enriched = history.map((scan: any) => {
+      const food = scan.foodId;
+      const riskyAdditives = food
+        ? detectRiskyAdditives(food.eCodes || [], food.ingredients || [])
+        : [];
+      return { ...scan, riskyAdditives };
+    });
+
+    res.status(200).json(formatResponse('success', `${enriched.length} tarama kaydı bulundu.`, enriched));
   } catch (error: any) {
     res.status(500).json(formatResponse('error', error.message));
   }

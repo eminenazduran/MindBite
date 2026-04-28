@@ -1,6 +1,6 @@
 export default function Landing() {
   return (
-    <main className="pt-24">
+    <main className="pt-24 bg-background text-on-surface">
       <section className="relative px-8 py-12 md:py-24 max-w-7xl mx-auto overflow-visible">
         <div className="flex flex-col md:flex-row items-center gap-16">
           <div className="flex-1 space-y-8 z-10">
@@ -33,7 +33,7 @@ export default function Landing() {
               <div className="absolute inset-0 bg-gradient-to-tr from-emerald-950/30 via-transparent to-transparent"></div>
             </div>
 
-            <div className="absolute -bottom-10 -left-6 md:-left-10 glass-card p-5 rounded-xl border border-white/40 shadow-xl hidden md:block max-w-[290px] backdrop-blur-xl bg-white/80">
+            <div className="absolute -bottom-10 -left-6 md:-left-10 glass-card p-5 rounded-xl border border-outline-variant/30 shadow-xl hidden md:block max-w-[290px] backdrop-blur-xl bg-surface-container-lowest/80">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-11 h-11 rounded-full bg-tertiary-fixed flex items-center justify-center text-on-tertiary-fixed">
                   <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
@@ -48,7 +48,7 @@ export default function Landing() {
               </div>
             </div>
 
-            <div className="absolute -top-6 -right-4 md:-right-8 glass-card p-4 rounded-xl border border-white/40 shadow-xl hidden md:flex items-center gap-3 backdrop-blur-xl bg-white/80">
+            <div className="absolute -top-6 -right-4 md:-right-8 glass-card p-4 rounded-xl border border-outline-variant/30 shadow-xl hidden md:flex items-center gap-3 backdrop-blur-xl bg-surface-container-lowest/80">
               <div className="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed">
                 <span className="material-symbols-outlined text-xl">barcode_scanner</span>
               </div>
@@ -127,7 +127,7 @@ export default function Landing() {
               ].map((s) => (
                 <div
                   key={s.step}
-                  className={`group p-8 bg-white dark:bg-surface-container-lowest rounded-2xl border ${s.border} shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 relative overflow-hidden`}
+                  className={`group p-8 bg-surface-container-lowest rounded-2xl border ${s.border} shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 relative overflow-hidden`}
                 >
                   <div className={`absolute top-0 right-0 w-40 h-40 ${s.glow} rounded-full -mr-20 -mt-20 blur-3xl opacity-50 group-hover:opacity-100 transition-opacity`}></div>
 
@@ -167,7 +167,7 @@ export default function Landing() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 auto-rows-[280px]">
           <div className="md:col-span-8 bg-surface-container-lowest glass-card rounded-xl p-10 flex flex-col relative overflow-hidden border border-outline-variant/10 group">
             <img alt="Sağlıklı yemek tabağı" className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:scale-110 transition-transform duration-700" src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=1400&q=80"/>
-            <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/80 to-white/50"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-surface/95 via-surface/85 to-surface/60"></div>
 
             <div className="relative z-10 flex-1 flex flex-col justify-center space-y-3 max-w-md">
               <h4 className="font-headline text-2xl md:text-3xl font-bold text-primary leading-tight">
@@ -179,14 +179,14 @@ export default function Landing() {
             </div>
 
             <div className="relative z-10 grid grid-cols-3 gap-3 pt-6 max-w-lg">
-              <div className="bg-white/80 backdrop-blur-sm rounded-lg p-3 border border-primary/10">
+              <div className="bg-surface-container-lowest/85 backdrop-blur-sm rounded-lg p-3 border border-primary/15">
                 <p className="text-[10px] font-semibold text-on-surface-variant uppercase tracking-wider">Kalori</p>
                 <p className="font-headline text-lg font-bold text-primary leading-tight">1,840<span className="text-xs text-on-surface-variant font-normal"> / 2,100</span></p>
                 <div className="h-1 w-full bg-primary/10 rounded-full mt-1.5 overflow-hidden">
                   <div className="h-full bg-primary w-[87%]"></div>
                 </div>
               </div>
-              <div className="bg-white/80 backdrop-blur-sm rounded-lg p-3 border border-secondary/10">
+              <div className="bg-surface-container-lowest/85 backdrop-blur-sm rounded-lg p-3 border border-secondary/15">
                 <p className="text-[10px] font-semibold text-on-surface-variant uppercase tracking-wider">Makro</p>
                 <p className="font-headline text-lg font-bold text-secondary leading-tight">45<span className="text-xs text-on-surface-variant font-normal">K</span> · 25<span className="text-xs text-on-surface-variant font-normal">P</span> · 30<span className="text-xs text-on-surface-variant font-normal">Y</span></p>
                 <div className="flex gap-0.5 mt-1.5 h-1 rounded-full overflow-hidden">
@@ -195,7 +195,7 @@ export default function Landing() {
                   <div className="bg-tertiary" style={{ width: '30%' }}></div>
                 </div>
               </div>
-              <div className="bg-white/80 backdrop-blur-sm rounded-lg p-3 border border-tertiary/10">
+              <div className="bg-surface-container-lowest/85 backdrop-blur-sm rounded-lg p-3 border border-tertiary/15">
                 <p className="text-[10px] font-semibold text-on-surface-variant uppercase tracking-wider">Sağlık Puanı</p>
                 <p className="font-headline text-lg font-bold text-tertiary leading-tight">85<span className="text-xs text-on-surface-variant font-normal"> / 100</span></p>
                 <div className="h-1 w-full bg-tertiary/10 rounded-full mt-1.5 overflow-hidden">

@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { User } from '../models/User';
 import { ScanHistory } from '../models/ScanHistory';
 import { calculateHealthScore, calculateDailyScores } from '../services/healthScore';
+import { calculateNutritionTargets } from '../services/nutritionTargets';
 
 // Saf fonksiyonel yaklaşım (Pure Function) ile sonuç formatlama
 const formatResponse = <T>(status: 'success' | 'error', message: string, data?: T) => ({
@@ -46,17 +47,57 @@ export const getUser = async (req: Request, res: Response) => {
 export const updateUser = async (req: Request, res: Response) => {
   try {
     const userId = (req as any).userId || req.params.id;
-    const { name, allergies, calorieGoal } = req.body;
+    const {
+      name, allergies, calorieGoal,
+      age, gender, height, weight, activityLevel, goal,
+      autoCalculate
+    } = req.body;
 
-    const user = await User.findByIdAndUpdate(
-      userId,
-      { name, allergies, calorieGoal },
-      { new: true, runValidators: true }
-    );
-
+    const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json(formatResponse('error', 'Kullanıcı bulunamadı.'));
     }
+
+    // Basit alanları güncelle
+    if (typeof name === 'string') user.name = name;
+    if (Array.isArray(allergies)) user.allergies = allergies;
+
+    // Beslenme profili alanları
+    if (typeof age === 'number') user.age = age;
+    if (gender) user.gender = gender;
+    if (typeof height === 'number') user.height = height;
+    if (typeof weight === 'number') user.weight = weight;
+    if (activityLevel) user.activityLevel = activityLevel;
+    if (goal) user.goal = goal;
+
+    // Profil tamamsa hedefleri otomatik hesapla (autoCalculate flag false değilse)
+    const shouldRecalculate =
+      autoCalculate !== false &&
+      typeof user.age === 'number' && typeof user.height === 'number' &&
+      typeof user.weight === 'number' && user.gender && user.activityLevel && user.goal;
+
+    if (shouldRecalculate) {
+      const targets = calculateNutritionTargets({
+        age: user.age!,
+        gender: user.gender!,
+        height: user.height!,
+        weight: user.weight!,
+        activityLevel: user.activityLevel!,
+        goal: user.goal!
+      });
+      user.bmi = targets.bmi;
+      user.bmr = targets.bmr;
+      user.tdee = targets.tdee;
+      user.calorieGoal = targets.calorieGoal;
+      user.proteinGoal = targets.proteinGoal;
+      user.carbGoal = targets.carbGoal;
+      user.fatGoal = targets.fatGoal;
+    } else if (typeof calorieGoal === 'number') {
+      // Kullanıcı manuel kalori girdiyse onu kabul et
+      user.calorieGoal = calorieGoal;
+    }
+
+    await user.save();
 
     res.status(200).json(formatResponse('success', 'Profil güncellendi.', user));
   } catch (error: any) {
@@ -82,8 +123,10 @@ export const getHealthScore = async (req: Request, res: Response) => {
     since.setDate(since.getDate() - days);
     since.setHours(0, 0, 0, 0);
 
+    // Sadece kullanıcının "Tükettim" onayı verdiği kayıtları skora dahil et
     const scans = await ScanHistory.find({
       userId,
+      consumed: true,
       createdAt: { $gte: since }
     })
       .populate('foodId')

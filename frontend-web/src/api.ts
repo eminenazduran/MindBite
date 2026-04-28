@@ -79,6 +79,47 @@ export const getScanHistory = async (userId: string, limit: number = 10) => {
   return res.json();
 };
 
+export const markScanConsumed = async (scanId: string, servingSize?: number) => {
+  const res = await fetch(`${API_URL}/scan/${scanId}/consume`, {
+    method: 'PATCH',
+    headers: getHeaders(),
+    body: JSON.stringify(servingSize ? { servingSize } : {})
+  });
+  return res.json();
+};
+
+export const unmarkScanConsumed = async (scanId: string) => {
+  const res = await fetch(`${API_URL}/scan/${scanId}/unconsume`, {
+    method: 'PATCH',
+    headers: getHeaders()
+  });
+  return res.json();
+};
+
+export const dismissScan = async (scanId: string) => {
+  const res = await fetch(`${API_URL}/scan/${scanId}/dismiss`, {
+    method: 'PATCH',
+    headers: getHeaders()
+  });
+  return res.json();
+};
+
+export const restoreScan = async (scanId: string) => {
+  const res = await fetch(`${API_URL}/scan/${scanId}/restore`, {
+    method: 'PATCH',
+    headers: getHeaders()
+  });
+  return res.json();
+};
+
+export const deleteScan = async (scanId: string) => {
+  const res = await fetch(`${API_URL}/scan/${scanId}`, {
+    method: 'DELETE',
+    headers: getHeaders()
+  });
+  return res.json();
+};
+
 // ─── FOOD ────────────────────────────────────────────
 export const getFoodByBarcode = async (barcode: string) => {
   const res = await fetch(`${API_URL}/food/${barcode}`, {

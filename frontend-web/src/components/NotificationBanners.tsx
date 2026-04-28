@@ -119,19 +119,19 @@ export default function NotificationBanners({ history, totalCalories, calorieGoa
           b.tone === 'error'
             ? 'bg-error/5 border-error/30'
             : b.tone === 'warning'
-            ? 'bg-amber-50 border-amber-300/50'
+            ? 'bg-tertiary/10 border-tertiary/30'
             : 'bg-primary/5 border-primary/30';
         const iconCls =
           b.tone === 'error'
             ? 'bg-error/15 text-error'
             : b.tone === 'warning'
-            ? 'bg-amber-500/15 text-amber-700'
+            ? 'bg-tertiary/15 text-tertiary'
             : 'bg-primary/15 text-primary';
         const titleCls =
           b.tone === 'error'
             ? 'text-error'
             : b.tone === 'warning'
-            ? 'text-amber-800'
+            ? 'text-tertiary'
             : 'text-primary';
 
         return (

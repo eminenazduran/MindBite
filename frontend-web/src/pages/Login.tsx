@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -32,7 +33,7 @@ export default function Login() {
   };
 
   return (
-    <main className="min-h-screen flex items-stretch bg-white overflow-hidden">
+    <main className="min-h-screen flex items-stretch bg-background overflow-hidden">
       {/* Left Side: Brand & Visuals */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-emerald-950 items-center justify-center p-12">
         <div 
@@ -77,39 +78,50 @@ export default function Login() {
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 md:p-12 bg-surface">
         <div className="w-full max-w-md">
           <div className="mb-12">
-            <Link to="/" className="text-2xl font-bold text-emerald-900 font-headline mb-8 block lg:hidden">MindBite</Link>
-            <h1 className="text-4xl font-headline font-extrabold text-emerald-950 mb-3 tracking-tight">Giriş Yap</h1>
+            <Link to="/" className="text-2xl font-bold text-primary font-headline mb-8 block lg:hidden">MindBite</Link>
+            <h1 className="text-4xl font-headline font-extrabold text-on-surface mb-3 tracking-tight">Giriş Yap</h1>
             <p className="text-on-surface-variant font-medium">Beslenme hedeflerine bir adım daha yaklaş.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <label className="text-sm font-bold text-emerald-900/70 block ml-1" htmlFor="email">E-posta Adresi</label>
+              <label className="text-sm font-bold text-on-surface-variant block ml-1" htmlFor="email">E-posta Adresi</label>
               <input
                 id="email"
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-5 py-4 rounded-2xl border border-outline-variant/50 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-600/5 outline-none bg-white transition-all shadow-sm"
+                className="w-full px-5 py-4 rounded-2xl border border-outline-variant/50 focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none bg-surface-container-lowest text-on-surface transition-all shadow-sm"
                 placeholder="ornek@mail.com"
               />
             </div>
 
             <div className="space-y-2">
               <div className="flex justify-between items-center px-1">
-                <label className="text-sm font-bold text-emerald-900/70 block" htmlFor="password">Şifre</label>
-                <a href="#" className="text-xs font-bold text-emerald-600 hover:underline">Şifremi Unuttum</a>
+                <label className="text-sm font-bold text-on-surface-variant block" htmlFor="password">Şifre</label>
+                <a href="#" className="text-xs font-bold text-primary hover:underline">Şifremi Unuttum</a>
               </div>
-              <input
-                id="password"
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-5 py-4 rounded-2xl border border-outline-variant/50 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-600/5 outline-none bg-white transition-all shadow-sm"
-                placeholder="••••••••"
-              />
+              <div className="relative">
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-5 py-4 pr-14 rounded-2xl border border-outline-variant/50 focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none bg-surface-container-lowest text-on-surface transition-all shadow-sm"
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(v => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-primary/10 transition"
+                  aria-label={showPassword ? 'Şifreyi gizle' : 'Şifreyi göster'}
+                  title={showPassword ? 'Şifreyi gizle' : 'Şifreyi göster'}
+                >
+                  <span className="material-symbols-outlined text-xl">{showPassword ? 'visibility_off' : 'visibility'}</span>
+                </button>
+              </div>
             </div>
 
             {error && (
@@ -122,7 +134,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-4 bg-emerald-900 text-white font-headline font-bold rounded-2xl shadow-xl shadow-emerald-950/20 hover:bg-emerald-800 hover:-translate-y-1 active:translate-y-0 transition-all disabled:opacity-50"
+              className="w-full py-4 hero-gradient text-on-primary font-headline font-bold rounded-2xl shadow-xl shadow-primary/20 hover:opacity-90 hover:-translate-y-1 active:translate-y-0 transition-all disabled:opacity-50"
             >
               {loading ? 'Giriş Yapılıyor...' : 'Giriş Yap'}
             </button>
@@ -130,7 +142,7 @@ export default function Login() {
 
           <div className="mt-10 pt-10 border-t border-outline-variant/30 text-center">
             <span className="text-on-surface-variant font-medium">Hesabınız yok mu?</span>{' '}
-            <Link to="/register" className="text-emerald-700 font-extrabold hover:underline decoration-2 underline-offset-4 ml-1">
+            <Link to="/register" className="text-primary font-extrabold hover:underline decoration-2 underline-offset-4 ml-1">
               Hemen Kayıt Olun
             </Link>
           </div>

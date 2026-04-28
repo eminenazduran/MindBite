@@ -12,9 +12,11 @@ export const getDailyAdvice = async (req: Request, res: Response) => {
     if (!user) return res.status(404).json({ status: 'error', message: 'Kullanıcı bulunamadı.' });
 
     const todayStart = new Date().setHours(0, 0, 0, 0);
-    const history = await ScanHistory.find({ 
-      userId, 
-      createdAt: { $gte: new Date(todayStart) } 
+    // Sadece tüketim onaylı kayıtlar günlük tavsiyeyi etkiler
+    const history = await ScanHistory.find({
+      userId,
+      consumed: true,
+      createdAt: { $gte: new Date(todayStart) }
     }).populate('foodId');
 
     const totals = history.reduce((acc, h: any) => {

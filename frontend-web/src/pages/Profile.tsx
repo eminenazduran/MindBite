@@ -38,6 +38,7 @@ export default function Profile() {
   const [pwdSaving, setPwdSaving] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [deletePwd, setDeletePwd] = useState('');
+  const [showDeletePwd, setShowDeletePwd] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
   // Notifications
@@ -245,7 +246,7 @@ export default function Profile() {
                       type="number"
                       value={calorieGoal}
                       onChange={(e) => setCalorieGoal(parseInt(e.target.value) || 0)}
-                      className="w-full max-w-xs px-4 py-3 rounded-lg border border-outline-variant/30 focus:border-primary focus:ring-1 focus:ring-primary outline-none bg-white"
+                      className="w-full max-w-xs px-4 py-3 rounded-lg border border-outline-variant/30 focus:border-primary focus:ring-1 focus:ring-primary outline-none bg-surface-container-lowest text-on-surface"
                     />
                   </label>
                 </div>
@@ -420,18 +421,29 @@ export default function Profile() {
                     Hesabımı Sil
                   </button>
                 ) : (
-                  <div className="bg-white/70 rounded-xl p-5 space-y-4">
+                  <div className="bg-surface-container-lowest/70 rounded-xl p-5 space-y-4">
                     <p className="text-sm text-on-surface">
                       <strong>Hesabınızı silmek üzeresiniz.</strong> Tüm tarama geçmişi, tercihler ve kullanıcı verileri
                       kalıcı olarak silinecek. Devam etmek için şifrenizi girin.
                     </p>
-                    <input
-                      type="password"
-                      value={deletePwd}
-                      onChange={(e) => setDeletePwd(e.target.value)}
-                      placeholder="Şifreniz"
-                      className="w-full max-w-sm px-4 py-3 rounded-xl border border-error/30 focus:border-error focus:ring-1 focus:ring-error outline-none bg-white"
-                    />
+                    <div className="relative max-w-sm">
+                      <input
+                        type={showDeletePwd ? 'text' : 'password'}
+                        value={deletePwd}
+                        onChange={(e) => setDeletePwd(e.target.value)}
+                        placeholder="Şifreniz"
+                        className="w-full px-4 py-3 pr-12 rounded-xl border border-error/30 focus:border-error focus:ring-1 focus:ring-error outline-none bg-surface-container-lowest text-on-surface"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowDeletePwd(v => !v)}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-md flex items-center justify-center text-on-surface-variant hover:text-error hover:bg-error/5 transition"
+                        aria-label={showDeletePwd ? 'Şifreyi gizle' : 'Şifreyi göster'}
+                        title={showDeletePwd ? 'Şifreyi gizle' : 'Şifreyi göster'}
+                      >
+                        <span className="material-symbols-outlined text-lg">{showDeletePwd ? 'visibility_off' : 'visibility'}</span>
+                      </button>
+                    </div>
                     <div className="flex gap-3">
                       <button
                         onClick={handleDeleteAccount}
@@ -458,13 +470,13 @@ export default function Profile() {
             <>
               {/* Tarayıcı izin kartı — öğün hatırlatıcısı için gerekli */}
               {canPush && notifPrefs.mealReminders && !pushGranted && (
-                <section className="glass-card rounded-xl p-5 shadow-sm ring-1 ring-amber-300/40 bg-amber-50/60 flex flex-col md:flex-row md:items-center gap-4">
+                <section className="glass-card rounded-xl p-5 shadow-sm ring-1 ring-tertiary/30 bg-tertiary/10 flex flex-col md:flex-row md:items-center gap-4">
                   <div className="flex items-start gap-3 flex-1">
-                    <div className="w-11 h-11 rounded-xl bg-amber-500/15 text-amber-700 flex items-center justify-center flex-shrink-0">
+                    <div className="w-11 h-11 rounded-xl bg-tertiary/15 text-tertiary flex items-center justify-center flex-shrink-0">
                       <span className="material-symbols-outlined">notifications_off</span>
                     </div>
                     <div>
-                      <p className="font-bold text-amber-800">Bildirim izni gerekiyor</p>
+                      <p className="font-bold text-on-surface">Bildirim izni gerekiyor</p>
                       <p className="text-sm text-on-surface mt-0.5">
                         Öğün hatırlatıcılarını alabilmek için tarayıcı bildirim iznini etkinleştirmelisin.
                       </p>
@@ -472,7 +484,7 @@ export default function Profile() {
                   </div>
                   <button
                     onClick={requestNotifPermission}
-                    className="px-5 py-2.5 bg-amber-500 text-white font-bold rounded-xl hover:opacity-90 transition whitespace-nowrap"
+                    className="px-5 py-2.5 bg-tertiary text-on-tertiary font-bold rounded-xl hover:opacity-90 transition whitespace-nowrap"
                   >
                     İzin Ver
                   </button>
@@ -615,7 +627,7 @@ function PwdInput({ label, value, onChange, show, hint }: {
         type={show ? 'text' : 'password'}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full px-4 py-3 rounded-xl border border-outline-variant/30 focus:border-primary focus:ring-1 focus:ring-primary outline-none bg-white"
+        className="w-full px-4 py-3 rounded-xl border border-outline-variant/30 focus:border-primary focus:ring-1 focus:ring-primary outline-none bg-surface-container-lowest text-on-surface"
       />
       {hint && (
         <p className="text-xs text-on-surface-variant mt-1">En az 6 karakter kullan.</p>
@@ -636,7 +648,7 @@ function ComingSoonToggle({ icon, title, desc }: { icon: string; title: string; 
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="font-bold text-on-surface">{title}</h3>
-                <span className="px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-700 text-[10px] font-extrabold tracking-wider uppercase">
+                <span className="px-2 py-0.5 rounded-full bg-tertiary/15 text-tertiary text-[10px] font-extrabold tracking-wider uppercase">
                   Yakında
                 </span>
               </div>

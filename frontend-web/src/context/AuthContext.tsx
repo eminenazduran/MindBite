@@ -6,6 +6,18 @@ interface User {
   email: string;
   allergies: string[];
   calorieGoal: number;
+  age?: number;
+  gender?: 'female' | 'male' | 'other';
+  height?: number;
+  weight?: number;
+  activityLevel?: 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active';
+  goal?: 'lose' | 'maintain' | 'gain' | 'healthy';
+  bmi?: number;
+  bmr?: number;
+  tdee?: number;
+  proteinGoal?: number;
+  carbGoal?: number;
+  fatGoal?: number;
 }
 
 interface AuthContextType {

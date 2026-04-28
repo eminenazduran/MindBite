@@ -1,13 +1,44 @@
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { useMealReminders } from '../hooks/useMealReminders';
+
+function ThemeToggleButton() {
+  const { theme, toggleTheme } = useTheme();
+  const isDark = theme === 'dark';
+  return (
+    <button
+      onClick={toggleTheme}
+      className="relative w-10 h-10 rounded-full flex items-center justify-center text-on-surface hover:bg-surface-container transition-all overflow-hidden group"
+      aria-label={isDark ? 'Aydınlık temaya geç' : 'Karanlık temaya geç'}
+      title={isDark ? 'Aydınlık tema' : 'Karanlık tema'}
+    >
+      <span
+        className={`material-symbols-outlined absolute transition-all duration-500 ${
+          isDark ? 'opacity-0 -rotate-180 scale-50' : 'opacity-100 rotate-0 scale-100'
+        }`}
+        style={{ fontVariationSettings: "'FILL' 1" }}
+      >
+        light_mode
+      </span>
+      <span
+        className={`material-symbols-outlined absolute transition-all duration-500 ${
+          isDark ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 rotate-180 scale-50'
+        }`}
+        style={{ fontVariationSettings: "'FILL' 1" }}
+      >
+        dark_mode
+      </span>
+    </button>
+  );
+}
 
 function FooterLink({ to, children }: { to: string; children: React.ReactNode }) {
   return (
     <li>
       <Link
         to={to}
-        className="text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-emerald-300 transition-colors"
+        className="text-on-surface-variant hover:text-primary transition-colors"
       >
         {children}
       </Link>
@@ -28,7 +59,7 @@ export default function Layout() {
   return (
     <>
       {/* Top Navbar */}
-      <nav className="fixed top-0 w-full z-50 bg-white/80 dark:bg-emerald-950/80 backdrop-blur-xl shadow-[0_16px_48px_rgba(25,28,29,0.06)]">
+      <nav className="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl shadow-[0_16px_48px_rgba(0,0,0,0.06)] border-b border-outline-variant/20">
         <div className="max-w-7xl mx-auto flex justify-between items-center px-8 py-4">
           <Link to="/" className="flex items-center gap-2 group">
             <img
@@ -36,42 +67,43 @@ export default function Layout() {
               alt="MindBite"
               className="w-9 h-9 rounded-xl object-cover shadow-sm ring-1 ring-primary/10 group-hover:ring-primary/30 group-hover:scale-105 transition-all"
             />
-            <span className="text-xl font-bold tracking-tighter text-emerald-900 dark:text-emerald-50 font-headline">MindBite</span>
+            <span className="text-xl font-bold tracking-tighter text-on-surface font-headline">MindBite</span>
           </Link>
           <div className="hidden md:flex gap-8 items-center font-headline font-semibold tracking-tight">
-            <Link className="text-slate-600 dark:text-slate-400 hover:text-emerald-900 dark:hover:text-emerald-100 transition-all duration-300" to="/">Ana Sayfa</Link>
+            <Link className="text-on-surface-variant hover:text-on-surface transition-all duration-300" to="/">Ana Sayfa</Link>
             {user && (
               <>
-                <Link className="text-slate-600 dark:text-slate-400 hover:text-emerald-900 dark:hover:text-emerald-100 transition-all duration-300" to="/dashboard">Panelim</Link>
-                <Link className="text-slate-600 dark:text-slate-400 hover:text-emerald-900 dark:hover:text-emerald-100 transition-all duration-300" to="/analysis">Ürünler</Link>
-                <Link className="text-slate-600 dark:text-slate-400 hover:text-emerald-900 dark:hover:text-emerald-100 transition-all duration-300" to="/profile">Profil</Link>
+                <Link className="text-on-surface-variant hover:text-on-surface transition-all duration-300" to="/dashboard">Panelim</Link>
+                <Link className="text-on-surface-variant hover:text-on-surface transition-all duration-300" to="/analysis">Ürünler</Link>
+                <Link className="text-on-surface-variant hover:text-on-surface transition-all duration-300" to="/profile">Profil</Link>
               </>
             )}
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <ThemeToggleButton />
             {user ? (
               <>
-                <button 
+                <button
                   onClick={handleLogout}
                   className="px-5 py-2 text-sm font-bold text-error border border-error/20 rounded-full hover:bg-error/5 transition-all"
                 >
                   Çıkış
                 </button>
-                <button className="p-2 text-emerald-900 dark:text-emerald-50 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/50 rounded-full transition-transform active:scale-90">
+                <button className="p-2 text-on-surface hover:bg-surface-container rounded-full transition-transform active:scale-90">
                   <span className="material-symbols-outlined">account_circle</span>
                 </button>
               </>
             ) : (
               <div className="flex gap-2">
-                <Link 
+                <Link
                   to="/login"
                   className="px-5 py-2 text-sm font-bold text-primary rounded-full hover:bg-primary/5 transition-all"
                 >
                   Giriş Yap
                 </Link>
-                <Link 
+                <Link
                   to="/register"
-                  className="px-5 py-2 text-sm font-bold bg-primary text-white rounded-full hover:shadow-lg transition-all"
+                  className="px-5 py-2 text-sm font-bold bg-primary text-on-primary rounded-full hover:shadow-lg transition-all"
                 >
                   Kayıt Ol
                 </Link>
@@ -85,36 +117,36 @@ export default function Layout() {
       <Outlet />
 
       {/* Bottom NavBar for Mobile */}
-      <nav className="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-6 pb-6 pt-3 bg-white/85 dark:bg-emerald-950/85 backdrop-blur-2xl z-50 rounded-t-[3rem] shadow-[0_-16px_48px_rgba(25,28,29,0.06)]">
-        <Link className="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-5 py-2 hover:text-emerald-700 dark:hover:text-emerald-300" to="/">
+      <nav className="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-6 pb-6 pt-3 bg-surface/85 backdrop-blur-2xl z-50 rounded-t-[3rem] shadow-[0_-16px_48px_rgba(0,0,0,0.06)] border-t border-outline-variant/20">
+        <Link className="flex flex-col items-center justify-center text-on-surface-variant px-5 py-2 hover:text-primary" to="/">
           <span className="material-symbols-outlined">home</span>
           <span className="font-['Inter'] text-[10px] font-medium">Ana Sayfa</span>
         </Link>
-        <Link className="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-5 py-2 hover:text-emerald-700 dark:hover:text-emerald-300" to="/dashboard">
+        <Link className="flex flex-col items-center justify-center text-on-surface-variant px-5 py-2 hover:text-primary" to="/dashboard">
           <span className="material-symbols-outlined">monitoring</span>
           <span className="font-['Inter'] text-[10px] font-medium">Takip</span>
         </Link>
-        <Link className="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-5 py-2 hover:text-emerald-700 dark:hover:text-emerald-300" to="/analysis">
+        <Link className="flex flex-col items-center justify-center text-on-surface-variant px-5 py-2 hover:text-primary" to="/analysis">
           <span className="material-symbols-outlined">analytics</span>
           <span className="font-['Inter'] text-[10px] font-medium">Analiz</span>
         </Link>
-        <Link className="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-5 py-2 hover:text-emerald-700 dark:hover:text-emerald-300" to="/profile">
+        <Link className="flex flex-col items-center justify-center text-on-surface-variant px-5 py-2 hover:text-primary" to="/profile">
           <span className="material-symbols-outlined">person</span>
           <span className="font-['Inter'] text-[10px] font-medium">Profil</span>
         </Link>
       </nav>
 
       {/* Footer */}
-      <footer className="w-full pt-16 pb-8 px-8 bg-slate-50 dark:bg-emerald-950/20 mt-20 border-t border-outline-variant/10">
+      <footer className="w-full pt-16 pb-8 px-8 bg-surface-container-low mt-20 border-t border-outline-variant/30">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-12 gap-8 pb-10 border-b border-outline-variant/10">
+          <div className="grid grid-cols-2 md:grid-cols-12 gap-8 pb-10 border-b border-outline-variant/30">
             {/* Brand */}
             <div className="col-span-2 md:col-span-4 space-y-4">
               <Link to="/" className="flex items-center gap-2">
                 <img src="/mindbite-logo.png" alt="MindBite" className="w-9 h-9 rounded-xl object-cover ring-1 ring-primary/10" />
-                <span className="font-['Manrope'] font-bold text-lg text-emerald-900 dark:text-emerald-50">MindBite</span>
+                <span className="font-['Manrope'] font-bold text-lg text-on-surface">MindBite</span>
               </Link>
-              <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-w-xs">
+              <p className="text-sm text-on-surface-variant leading-relaxed max-w-xs">
                 Gıda etiketlerinin arkasındaki bilimi sadeleştiren, bilinçli beslenme platformu.
               </p>
               <div className="flex items-center gap-2 pt-2">
@@ -127,7 +159,7 @@ export default function Layout() {
                     key={s.label}
                     href={s.href}
                     aria-label={s.label}
-                    className="w-9 h-9 rounded-full bg-white dark:bg-emerald-900/40 border border-outline-variant/20 flex items-center justify-center text-slate-500 hover:text-primary hover:border-primary/30 transition-colors"
+                    className="w-9 h-9 rounded-full bg-surface-container border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-primary hover:border-primary/30 transition-colors"
                   >
                     <span className="material-symbols-outlined text-base">{s.icon}</span>
                   </a>
@@ -137,7 +169,7 @@ export default function Layout() {
 
             {/* Ürün */}
             <div className="col-span-1 md:col-span-2 space-y-3">
-              <h4 className="font-['Manrope'] font-bold text-sm text-emerald-900 dark:text-emerald-50 uppercase tracking-wider">Ürün</h4>
+              <h4 className="font-['Manrope'] font-bold text-sm text-on-surface uppercase tracking-wider">Ürün</h4>
               <ul className="space-y-2 text-sm">
                 <FooterLink to="/">Ana Sayfa</FooterLink>
                 <FooterLink to="/dashboard">Panelim</FooterLink>
@@ -148,20 +180,20 @@ export default function Layout() {
 
             {/* Şirket */}
             <div className="col-span-1 md:col-span-2 space-y-3">
-              <h4 className="font-['Manrope'] font-bold text-sm text-emerald-900 dark:text-emerald-50 uppercase tracking-wider">Şirket</h4>
+              <h4 className="font-['Manrope'] font-bold text-sm text-on-surface uppercase tracking-wider">Şirket</h4>
               <ul className="space-y-2 text-sm">
                 <FooterLink to="/about">Hakkımızda</FooterLink>
                 <FooterLink to="/contact">İletişim</FooterLink>
                 <li>
-                  <span className="text-slate-400 dark:text-slate-500 inline-flex items-center gap-1.5">
+                  <span className="text-on-surface-variant/60 inline-flex items-center gap-1.5">
                     Kariyer
-                    <span className="px-1.5 py-0.5 bg-slate-200/60 dark:bg-slate-700/30 text-[9px] font-bold rounded tracking-wider">YAKINDA</span>
+                    <span className="px-1.5 py-0.5 bg-surface-container-high text-on-surface-variant text-[9px] font-bold rounded tracking-wider">YAKINDA</span>
                   </span>
                 </li>
                 <li>
-                  <span className="text-slate-400 dark:text-slate-500 inline-flex items-center gap-1.5">
+                  <span className="text-on-surface-variant/60 inline-flex items-center gap-1.5">
                     Blog
-                    <span className="px-1.5 py-0.5 bg-slate-200/60 dark:bg-slate-700/30 text-[9px] font-bold rounded tracking-wider">YAKINDA</span>
+                    <span className="px-1.5 py-0.5 bg-surface-container-high text-on-surface-variant text-[9px] font-bold rounded tracking-wider">YAKINDA</span>
                   </span>
                 </li>
               </ul>
@@ -169,7 +201,7 @@ export default function Layout() {
 
             {/* Yasal */}
             <div className="col-span-1 md:col-span-2 space-y-3">
-              <h4 className="font-['Manrope'] font-bold text-sm text-emerald-900 dark:text-emerald-50 uppercase tracking-wider">Yasal</h4>
+              <h4 className="font-['Manrope'] font-bold text-sm text-on-surface uppercase tracking-wider">Yasal</h4>
               <ul className="space-y-2 text-sm">
                 <FooterLink to="/privacy">Gizlilik Politikası</FooterLink>
                 <FooterLink to="/privacy">Kullanım Koşulları</FooterLink>
@@ -183,8 +215,8 @@ export default function Layout() {
               <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                 <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>support_agent</span>
               </div>
-              <p className="font-['Manrope'] font-bold text-sm text-emerald-900 dark:text-emerald-50">Yardıma mı ihtiyacınız var?</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+              <p className="font-['Manrope'] font-bold text-sm text-on-surface">Yardıma mı ihtiyacınız var?</p>
+              <p className="text-xs text-on-surface-variant leading-relaxed">
                 24 saat içinde e-posta ile size dönüyoruz.
               </p>
               <Link
@@ -198,11 +230,11 @@ export default function Layout() {
           </div>
 
           {/* Alt çizgi */}
-          <div className="pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
+          <div className="pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-on-surface-variant">
             <p>© {new Date().getFullYear()} MindBite. Tüm Hakları Saklıdır.</p>
             <div className="flex items-center gap-2">
               <span>Türkiye'de</span>
-              <span className="material-symbols-outlined text-sm text-red-500" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>
+              <span className="material-symbols-outlined text-sm text-error" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>
               <span>ile tasarlandı</span>
             </div>
           </div>

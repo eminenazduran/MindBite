@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/User';
+import { calculateNutritionTargets } from '../services/nutritionTargets';
 
 const formatResponse = <T>(status: 'success' | 'error', message: string, data?: T) => ({
   status,
@@ -11,28 +12,51 @@ const formatResponse = <T>(status: 'success' | 'error', message: string, data?: 
 
 export const register = async (req: Request, res: Response) => {
   try {
-    const { name, email, password } = req.body;
+    const {
+      name, email, password,
+      age, gender, height, weight, activityLevel, goal
+    } = req.body;
 
-    // Check if user exists
+    // Zorunlu alan kontrolü
+    if (!name || !email || !password) {
+      return res.status(400).json(formatResponse('error', 'Ad, e-posta ve şifre zorunludur.'));
+    }
+    if (password.length < 6) {
+      return res.status(400).json(formatResponse('error', 'Şifre en az 6 karakter olmalıdır.'));
+    }
+
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json(formatResponse('error', 'Bu e-posta adresi zaten kullanımda.'));
     }
 
-    // Hash password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Create user
-    const user = new User({
-      name,
-      email,
-      password: hashedPassword
-    });
+    // Beslenme profili: tüm alanlar verilmişse hedefleri otomatik hesapla
+    const userData: any = { name, email, password: hashedPassword };
 
+    const profileComplete =
+      typeof age === 'number' && typeof height === 'number' &&
+      typeof weight === 'number' && gender && activityLevel && goal;
+
+    if (profileComplete) {
+      const targets = calculateNutritionTargets({ age, gender, height, weight, activityLevel, goal });
+      Object.assign(userData, {
+        age, gender, height, weight, activityLevel, goal,
+        bmi: targets.bmi,
+        bmr: targets.bmr,
+        tdee: targets.tdee,
+        calorieGoal: targets.calorieGoal,
+        proteinGoal: targets.proteinGoal,
+        carbGoal: targets.carbGoal,
+        fatGoal: targets.fatGoal
+      });
+    }
+
+    const user = new User(userData);
     await user.save();
 
-    // Generate token
     const token = jwt.sign(
       { userId: user._id },
       process.env.JWT_SECRET || 'fallback_secret',
@@ -46,7 +70,19 @@ export const register = async (req: Request, res: Response) => {
         name: user.name,
         email: user.email,
         allergies: user.allergies,
-        calorieGoal: user.calorieGoal
+        age: user.age,
+        gender: user.gender,
+        height: user.height,
+        weight: user.weight,
+        activityLevel: user.activityLevel,
+        goal: user.goal,
+        bmi: user.bmi,
+        bmr: user.bmr,
+        tdee: user.tdee,
+        calorieGoal: user.calorieGoal,
+        proteinGoal: user.proteinGoal,
+        carbGoal: user.carbGoal,
+        fatGoal: user.fatGoal
       }
     }));
   } catch (error: any) {
@@ -143,7 +179,19 @@ export const login = async (req: Request, res: Response) => {
         name: user.name,
         email: user.email,
         allergies: user.allergies,
-        calorieGoal: user.calorieGoal
+        age: user.age,
+        gender: user.gender,
+        height: user.height,
+        weight: user.weight,
+        activityLevel: user.activityLevel,
+        goal: user.goal,
+        bmi: user.bmi,
+        bmr: user.bmr,
+        tdee: user.tdee,
+        calorieGoal: user.calorieGoal,
+        proteinGoal: user.proteinGoal,
+        carbGoal: user.carbGoal,
+        fatGoal: user.fatGoal
       }
     }));
   } catch (error: any) {

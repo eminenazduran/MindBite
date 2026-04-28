@@ -74,27 +74,156 @@ export const scanProduct = async (req: Request, res: Response) => {
     // 3. Risk Analizi - Saf fonksiyon çağrısı
     const analysisResult = analyzeRisk(user, food);
 
-    // 4. Tarama Geçmişini Kaydet - Immutability için yeni bir nesne oluşturuyoruz
+    // 4. Tarama Geçmişini Kaydet (consumed: false → kullanıcı onaylamadıkça kaloriye sayılmaz)
+    // Schema'daki analysisResult alanı sade tutuluyor; riskyAdditives yanıtta dönüyor.
     const scanRecord = new ScanHistory({
       userId: user._id,
       foodId: food._id,
       barcode: food.barcode,
       servingSize: servingSize || 100,
-      analysisResult: Object.freeze({ ...analysisResult }) // Freeze ile immutable hale getirme simulasyonu
+      consumed: false,
+      consumedAt: null,
+      analysisResult: {
+        riskLevel: analysisResult.riskLevel,
+        warnings: analysisResult.warnings,
+        safeToConsume: analysisResult.safeToConsume
+      }
     });
-    
+
     await scanRecord.save();
 
-    // 5. Sonuç Dön
+    // 5. Sonuç Dön — frontend "Tükettim" eylemi için scanId'yi kullanır
     res.status(200).json({
       status: 'success',
       message: 'Tarama analizi tamamlandı.',
       data: {
         food,
-        analysisResult
+        analysisResult,
+        scanId: scanRecord._id,
+        servingSize: scanRecord.servingSize,
+        consumed: scanRecord.consumed
       }
     });
 
+  } catch (error: any) {
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+};
+
+// PATCH /scan/:id/consume — kullanıcı taradığı bir ürünü "Tükettim" olarak işaretler
+export const markScanConsumed = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).userId;
+    const { id } = req.params;
+    const { servingSize } = req.body || {};
+
+    if (!userId || !id) {
+      return res.status(400).json({ status: 'error', message: 'Eksik parametre.' });
+    }
+
+    const scan = await ScanHistory.findOne({ _id: id, userId });
+    if (!scan) {
+      return res.status(404).json({ status: 'error', message: 'Tarama bulunamadı.' });
+    }
+
+    if (typeof servingSize === 'number' && servingSize > 0) {
+      scan.servingSize = servingSize;
+    }
+    scan.consumed = true;
+    scan.consumedAt = new Date();
+    // Tüketildi → varsa "tüketmedim" işareti kalksın (24h silme iptal)
+    scan.dismissed = false;
+    scan.dismissedAt = null;
+    await scan.save();
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Günlük sayaca eklendi.',
+      data: scan
+    });
+  } catch (error: any) {
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+};
+
+// PATCH /scan/:id/unconsume — geri al (yanlışlıkla tükettim dedim)
+export const unmarkScanConsumed = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).userId;
+    const { id } = req.params;
+
+    const scan = await ScanHistory.findOne({ _id: id, userId });
+    if (!scan) {
+      return res.status(404).json({ status: 'error', message: 'Tarama bulunamadı.' });
+    }
+
+    scan.consumed = false;
+    scan.consumedAt = null;
+    await scan.save();
+
+    res.status(200).json({ status: 'success', message: 'Tüketim kaydı geri alındı.', data: scan });
+  } catch (error: any) {
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+};
+
+// PATCH /scan/:id/dismiss — "Tüketmedim" işaretle. Kayıt 24 saat sonra MongoDB TTL ile otomatik silinir.
+export const dismissScan = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).userId;
+    const { id } = req.params;
+
+    const scan = await ScanHistory.findOne({ _id: id, userId });
+    if (!scan) {
+      return res.status(404).json({ status: 'error', message: 'Tarama bulunamadı.' });
+    }
+
+    scan.dismissed = true;
+    scan.dismissedAt = new Date();
+    // Tüketmedim → consumed kesin false olmalı
+    scan.consumed = false;
+    scan.consumedAt = null;
+    await scan.save();
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Tüketmedim olarak işaretlendi. 24 saat sonra otomatik silinecek.',
+      data: scan
+    });
+  } catch (error: any) {
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+};
+
+// PATCH /scan/:id/restore — "Tüketmedim" işaretini geri al (silinmesini iptal et)
+export const restoreScan = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).userId;
+    const { id } = req.params;
+
+    const scan = await ScanHistory.findOne({ _id: id, userId });
+    if (!scan) {
+      return res.status(404).json({ status: 'error', message: 'Tarama bulunamadı.' });
+    }
+
+    scan.dismissed = false;
+    scan.dismissedAt = null;
+    await scan.save();
+
+    res.status(200).json({ status: 'success', message: 'Kayıt geri yüklendi.', data: scan });
+  } catch (error: any) {
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+};
+
+// DELETE /scan/:id — taramayı tamamen sil (geçmişten kaldır)
+export const deleteScan = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).userId;
+    const { id } = req.params;
+    const result = await ScanHistory.findOneAndDelete({ _id: id, userId });
+    if (!result) return res.status(404).json({ status: 'error', message: 'Tarama bulunamadı.' });
+    res.status(200).json({ status: 'success', message: 'Tarama silindi.' });
   } catch (error: any) {
     res.status(500).json({ status: 'error', message: error.message });
   }
@@ -167,11 +296,14 @@ export const logNaturalMeal = async (req: Request, res: Response) => {
 
       await food.save();
 
+      // Hızlı Öğün Ekle: kullanıcı zaten "yedim" eylemi yapıyor → consumed: true
       const scanRecord = new ScanHistory({
         userId,
         foodId: food._id,
         barcode: virtualBarcode,
         servingSize: effectiveGrams,
+        consumed: true,
+        consumedAt: new Date(),
         analysisResult: {
           riskLevel: 'LOW',
           warnings: [],
