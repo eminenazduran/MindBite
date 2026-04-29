@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { fetchUser, updateUser, changePassword, deleteAccount } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { useNotificationPrefs } from '../hooks/useNotificationPrefs';
@@ -13,13 +13,49 @@ const ALLERGEN_OPTIONS = [
   { key: 'Yumurta', icon: 'egg' },
 ];
 
+type Gender = 'female' | 'male' | 'other';
+type ActivityLevel = 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active';
+type Goal = 'lose' | 'maintain' | 'gain' | 'healthy';
+
+const ACTIVITY_OPTIONS: { value: ActivityLevel; label: string; desc: string; icon: string }[] = [
+  { value: 'sedentary', label: 'Hareketsiz', desc: 'Masa başı iş, egzersiz yok', icon: 'chair' },
+  { value: 'light', label: 'Hafif Aktif', desc: 'Hafta 1-3 gün hafif egzersiz', icon: 'directions_walk' },
+  { value: 'moderate', label: 'Orta Aktif', desc: 'Hafta 3-5 gün orta egzersiz', icon: 'directions_run' },
+  { value: 'active', label: 'Aktif', desc: 'Hafta 6-7 gün yoğun egzersiz', icon: 'fitness_center' },
+  { value: 'very_active', label: 'Çok Aktif', desc: 'Günde 2x antrenman / fiziksel iş', icon: 'local_fire_department' },
+];
+
+const GOAL_OPTIONS: { value: Goal; label: string; desc: string; icon: string }[] = [
+  { value: 'lose', label: 'Kilo Vermek', desc: 'Günlük ~400 kcal eksik', icon: 'trending_down' },
+  { value: 'maintain', label: 'Kilomu Korumak', desc: 'Günlük ihtiyacınla denk', icon: 'balance' },
+  { value: 'gain', label: 'Kilo Almak', desc: 'Günlük ~400 kcal fazla', icon: 'trending_up' },
+  { value: 'healthy', label: 'Sağlıklı Beslenmek', desc: 'Dengeli makro dağılımı', icon: 'eco' },
+];
+
+const ACTIVITY_FACTOR: Record<ActivityLevel, number> = {
+  sedentary: 1.2, light: 1.375, moderate: 1.55, active: 1.725, very_active: 1.9
+};
+
 type TabKey = 'profile' | 'security' | 'notifications';
 
 export default function Profile() {
   const { user: authUser, logout } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<TabKey>('profile');
+  const [searchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState<TabKey>(() => {
+    const t = searchParams.get('tab');
+    if (t === 'profile' || t === 'security' || t === 'notifications') return t;
+    return 'profile';
+  });
   const { prefs: notifPrefs, patch: patchNotifPrefs } = useNotificationPrefs();
+
+  // URL tab parametresi değiştiğinde sekmeyi güncelle
+  useEffect(() => {
+    const t = searchParams.get('tab');
+    if (t === 'profile' || t === 'security' || t === 'notifications') {
+      setActiveTab(t);
+    }
+  }, [searchParams]);
 
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -28,6 +64,14 @@ export default function Profile() {
   const [allergies, setAllergies] = useState<string[]>([]);
   const [calorieGoal, setCalorieGoal] = useState(2000);
   const [customAllergen, setCustomAllergen] = useState('');
+
+  // Fiziksel bilgiler
+  const [age, setAge] = useState<string>('');
+  const [gender, setGender] = useState<Gender | ''>('');
+  const [height, setHeight] = useState<string>('');
+  const [weight, setWeight] = useState<string>('');
+  const [activityLevel, setActivityLevel] = useState<ActivityLevel>('light');
+  const [goal, setGoal] = useState<Goal>('healthy');
 
   // Security
   const [currentPwd, setCurrentPwd] = useState('');
@@ -49,9 +93,16 @@ export default function Profile() {
     fetchUser(authUser.id)
       .then(res => {
         if (res.status === 'success') {
-          setUser(res.data);
-          setAllergies(res.data.allergies || []);
-          setCalorieGoal(res.data.calorieGoal || 2000);
+          const d = res.data;
+          setUser(d);
+          setAllergies(d.allergies || []);
+          setCalorieGoal(d.calorieGoal || 2000);
+          if (d.age) setAge(String(d.age));
+          if (d.gender) setGender(d.gender);
+          if (d.height) setHeight(String(d.height));
+          if (d.weight) setWeight(String(d.weight));
+          if (d.activityLevel) setActivityLevel(d.activityLevel);
+          if (d.goal) setGoal(d.goal);
         }
       })
       .catch(console.error)
@@ -70,14 +121,61 @@ export default function Profile() {
     }
   };
 
+  // Canlı BMI / BMR / TDEE / Hedef hesaplama
+  const livePreview = useMemo(() => {
+    const a = Number(age), h = Number(height), w = Number(weight);
+    if (!a || !h || !w || !gender) return null;
+    const heightM = h / 100;
+    const bmi = w / (heightM * heightM);
+    const bmr = gender === 'male'
+      ? 10 * w + 6.25 * h - 5 * a + 5
+      : 10 * w + 6.25 * h - 5 * a - 161;
+    const tdee = bmr * ACTIVITY_FACTOR[activityLevel];
+    let cal = tdee;
+    if (goal === 'lose') cal = tdee - 400;
+    if (goal === 'gain') cal = tdee + 400;
+    const minCal = gender === 'male' ? 1500 : 1200;
+    if (cal < minCal) cal = minCal;
+    const cat = bmi < 18.5 ? 'Zayıf' : bmi < 25 ? 'Normal' : bmi < 30 ? 'Kilolu' : 'Obez';
+    return {
+      bmi: bmi.toFixed(1),
+      bmiCategory: cat,
+      bmr: Math.round(bmr),
+      tdee: Math.round(tdee),
+      calorieGoal: Math.round(cal)
+    };
+  }, [age, gender, height, weight, activityLevel, goal]);
+
+  // livePreview değiştiğinde kalori hedefini otomatik güncelle
+  useEffect(() => {
+    if (livePreview) {
+      setCalorieGoal(livePreview.calorieGoal);
+    }
+  }, [livePreview]);
+
   const handleSave = async () => {
     if (!authUser) return;
     setSaving(true);
     setSaveMessage('');
     try {
-      const res = await updateUser(authUser.id, { name: user?.name, allergies, calorieGoal });
+      const payload: any = { name: user?.name, allergies };
+      // Fiziksel bilgiler doluysa backend otomatik hesaplar
+      const a = Number(age), h = Number(height), w = Number(weight);
+      if (a && h && w && gender) {
+        payload.age = a;
+        payload.gender = gender;
+        payload.height = h;
+        payload.weight = w;
+        payload.activityLevel = activityLevel;
+        payload.goal = goal;
+      } else {
+        payload.calorieGoal = calorieGoal;
+        payload.autoCalculate = false;
+      }
+      const res = await updateUser(authUser.id, payload);
       if (res.status === 'success') {
         setUser(res.data);
+        setCalorieGoal(res.data.calorieGoal || 2000);
         setSaveMessage('✅ Profiliniz başarıyla güncellendi!');
         setTimeout(() => setSaveMessage(''), 3000);
       } else {
@@ -203,11 +301,10 @@ export default function Profile() {
               <button
                 key={t.id}
                 onClick={() => setActiveTab(t.id)}
-                className={`flex items-center gap-3 px-6 py-4 rounded-full font-semibold transition-all whitespace-nowrap ${
-                  activeTab === t.id
+                className={`flex items-center gap-3 px-6 py-4 rounded-full font-semibold transition-all whitespace-nowrap ${activeTab === t.id
                     ? 'bg-primary-container text-on-primary-container shadow-sm'
                     : 'text-on-surface-variant hover:bg-surface-container-low'
-                }`}
+                  }`}
               >
                 <span className="material-symbols-outlined">{t.icon}</span>
                 {t.label}
@@ -229,6 +326,153 @@ export default function Profile() {
           {/* ============ Profil & Tercihler ============ */}
           {activeTab === 'profile' && (
             <>
+              {/* ── Fiziksel Bilgiler ── */}
+              <section className="glass-card rounded-xl p-8 shadow-sm ring-1 ring-outline-variant/15">
+                <div className="flex items-center gap-3 mb-8">
+                  <div className="w-12 h-12 rounded-2xl bg-tertiary-container/20 flex items-center justify-center text-tertiary">
+                    <span className="material-symbols-outlined">monitoring</span>
+                  </div>
+                  <div>
+                    <h2 className="font-headline text-2xl font-bold">Fiziksel Bilgiler</h2>
+                    <p className="text-on-surface-variant text-sm">Kilo, boy veya aktivite değişikliklerini buradan güncelleyin — kalori hedefiniz otomatik yeniden hesaplanır.</p>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  {/* Yaş + Cinsiyet */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <label className="block space-y-1.5">
+                      <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Yaş</span>
+                      <input
+                        type="number" min={10} max={100}
+                        value={age} onChange={(e) => setAge(e.target.value)}
+                        placeholder="25"
+                        className={profileInputCls}
+                      />
+                    </label>
+                    <div className="space-y-1.5">
+                      <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wider block">Cinsiyet</span>
+                      <div className="grid grid-cols-3 gap-2">
+                        {(['female', 'male', 'other'] as Gender[]).map(g => (
+                          <button
+                            key={g} type="button" onClick={() => setGender(g)}
+                            className={`py-3 rounded-xl border-2 font-bold text-sm transition ${gender === g
+                                ? 'border-primary bg-primary/10 text-primary'
+                                : 'border-outline-variant/40 bg-surface-container-lowest text-on-surface-variant hover:border-primary/40'
+                              }`}
+                          >
+                            {g === 'female' ? 'Kadın' : g === 'male' ? 'Erkek' : 'Diğer'}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Boy + Kilo */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <label className="block space-y-1.5">
+                      <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Boy (cm)</span>
+                      <input
+                        type="number" min={100} max={250}
+                        value={height} onChange={(e) => setHeight(e.target.value)}
+                        placeholder="170"
+                        className={profileInputCls}
+                      />
+                    </label>
+                    <label className="block space-y-1.5">
+                      <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Kilo (kg)</span>
+                      <input
+                        type="number" min={25} max={300}
+                        value={weight} onChange={(e) => setWeight(e.target.value)}
+                        placeholder="70"
+                        className={profileInputCls}
+                      />
+                    </label>
+                  </div>
+
+                  {/* Canlı Önizleme */}
+                  {livePreview && (
+                    <div className="p-4 rounded-2xl bg-primary/10 border border-primary/20">
+                      <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-3">Canlı Hesaplama</p>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <div className="text-center">
+                          <p className="text-[10px] font-bold text-on-surface-variant uppercase">BKİ</p>
+                          <p className="text-xl font-extrabold text-on-surface">{livePreview.bmi}</p>
+                          <p className="text-[10px] font-bold text-primary">{livePreview.bmiCategory}</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-[10px] font-bold text-on-surface-variant uppercase">BMR</p>
+                          <p className="text-xl font-extrabold text-on-surface">{livePreview.bmr}</p>
+                          <p className="text-[10px] text-on-surface-variant">kcal/gün</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-[10px] font-bold text-on-surface-variant uppercase">TDEE</p>
+                          <p className="text-xl font-extrabold text-on-surface">{livePreview.tdee}</p>
+                          <p className="text-[10px] text-on-surface-variant">kcal/gün</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-[10px] font-bold text-primary uppercase">Hedef</p>
+                          <p className="text-xl font-extrabold text-primary">{livePreview.calorieGoal}</p>
+                          <p className="text-[10px] text-on-surface-variant">kcal/gün</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Aktivite Seviyesi */}
+                  <div className="space-y-2">
+                    <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wider block">Aktivite Seviyesi</span>
+                    <div className="space-y-2">
+                      {ACTIVITY_OPTIONS.map(opt => (
+                        <button
+                          key={opt.value} type="button"
+                          onClick={() => setActivityLevel(opt.value)}
+                          className={`w-full text-left p-4 rounded-2xl border-2 transition flex items-center gap-3 ${activityLevel === opt.value
+                              ? 'border-primary bg-primary/10'
+                              : 'border-outline-variant/40 bg-surface-container-lowest hover:border-primary/40'
+                            }`}
+                        >
+                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${activityLevel === opt.value ? 'bg-primary text-on-primary' : 'bg-primary/10 text-primary'
+                            }`}>
+                            <span className="material-symbols-outlined text-xl">{opt.icon}</span>
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-bold text-on-surface text-sm">{opt.label}</p>
+                            <p className="text-xs text-on-surface-variant">{opt.desc}</p>
+                          </div>
+                          <span className="material-symbols-outlined text-primary">
+                            {activityLevel === opt.value ? 'check_circle' : 'radio_button_unchecked'}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Beslenme Hedefi */}
+                  <div className="space-y-2">
+                    <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wider block">Beslenme Hedefi</span>
+                    <div className="grid grid-cols-2 gap-3">
+                      {GOAL_OPTIONS.map(opt => (
+                        <button
+                          key={opt.value} type="button"
+                          onClick={() => setGoal(opt.value)}
+                          className={`p-4 rounded-2xl border-2 transition text-left ${goal === opt.value
+                              ? 'border-primary bg-primary/10'
+                              : 'border-outline-variant/40 bg-surface-container-lowest hover:border-primary/40'
+                            }`}
+                        >
+                          <span className={`material-symbols-outlined text-xl mb-1 ${goal === opt.value ? 'text-primary' : 'text-on-surface-variant'
+                            }`}>{opt.icon}</span>
+                          <p className="font-bold text-on-surface text-sm">{opt.label}</p>
+                          <p className="text-[11px] text-on-surface-variant">{opt.desc}</p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* ── Beslenme Tercihleri (kalori override) ── */}
               <section className="glass-card rounded-xl p-8 shadow-sm ring-1 ring-outline-variant/15">
                 <div className="flex items-center gap-3 mb-8">
                   <div className="w-12 h-12 rounded-2xl bg-primary-container/20 flex items-center justify-center text-primary">
@@ -236,18 +480,27 @@ export default function Profile() {
                   </div>
                   <div>
                     <h2 className="font-headline text-2xl font-bold">Beslenme Tercihleri</h2>
-                    <p className="text-on-surface-variant text-sm">Size en uygun gıdaları önermemize yardımcı olun.</p>
+                    <p className="text-on-surface-variant text-sm">Fiziksel bilgiler doluysa hedef otomatik hesaplanır, isterseniz elle de girebilirsiniz.</p>
                   </div>
                 </div>
                 <div className="space-y-4">
                   <label className="block">
                     <span className="text-sm font-semibold text-on-surface-variant mb-1 block">Günlük Kalori Hedefi</span>
-                    <input
-                      type="number"
-                      value={calorieGoal}
-                      onChange={(e) => setCalorieGoal(parseInt(e.target.value) || 0)}
-                      className="w-full max-w-xs px-4 py-3 rounded-lg border border-outline-variant/30 focus:border-primary focus:ring-1 focus:ring-primary outline-none bg-surface-container-lowest text-on-surface"
-                    />
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="number"
+                        value={livePreview ? livePreview.calorieGoal : calorieGoal}
+                        onChange={(e) => setCalorieGoal(parseInt(e.target.value) || 0)}
+                        disabled={!!livePreview}
+                        className={`w-full max-w-xs px-4 py-3 rounded-lg border border-outline-variant/30 focus:border-primary focus:ring-1 focus:ring-primary outline-none bg-surface-container-lowest text-on-surface disabled:opacity-60 disabled:cursor-not-allowed`}
+                      />
+                      {livePreview && (
+                        <span className="text-xs text-primary font-bold flex items-center gap-1">
+                          <span className="material-symbols-outlined text-sm">auto_awesome</span>
+                          Otomatik
+                        </span>
+                      )}
+                    </div>
                   </label>
                 </div>
               </section>
@@ -268,9 +521,8 @@ export default function Profile() {
                       <button
                         key={key}
                         onClick={() => toggleAllergy(key)}
-                        className={`flex items-center justify-between p-5 rounded-lg group transition-all ${
-                          allergies.includes(key) ? 'bg-secondary/10 ring-2 ring-secondary' : 'bg-surface-container-low hover:bg-surface-container-high'
-                        }`}
+                        className={`flex items-center justify-between p-5 rounded-lg group transition-all ${allergies.includes(key) ? 'bg-secondary/10 ring-2 ring-secondary' : 'bg-surface-container-low hover:bg-surface-container-high'
+                          }`}
                       >
                         <div className="flex items-center gap-4">
                           <span className={`material-symbols-outlined ${allergies.includes(key) ? 'text-secondary' : 'text-on-surface-variant'}`}>{icon}</span>
@@ -375,9 +627,8 @@ export default function Profile() {
                   </label>
 
                   {pwdMessage && (
-                    <div className={`p-3 rounded-xl text-sm font-semibold flex items-center gap-2 ${
-                      pwdMessage.type === 'success' ? 'bg-primary/10 text-primary' : 'bg-error/10 text-error'
-                    }`}>
+                    <div className={`p-3 rounded-xl text-sm font-semibold flex items-center gap-2 ${pwdMessage.type === 'success' ? 'bg-primary/10 text-primary' : 'bg-error/10 text-error'
+                      }`}>
                       <span className="material-symbols-outlined text-base">
                         {pwdMessage.type === 'success' ? 'check_circle' : 'error'}
                       </span>
@@ -529,11 +780,10 @@ export default function Profile() {
                             <button
                               key={time}
                               onClick={() => toggleMealTime(time)}
-                              className={`px-3 py-1.5 rounded-full text-sm font-bold transition ${
-                                notifPrefs.mealReminderTimes.includes(time)
+                              className={`px-3 py-1.5 rounded-full text-sm font-bold transition ${notifPrefs.mealReminderTimes.includes(time)
                                   ? 'bg-primary text-white shadow'
                                   : 'bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest'
-                              }`}
+                                }`}
                             >
                               {time}
                             </button>
@@ -602,6 +852,9 @@ export default function Profile() {
     </main>
   );
 }
+
+// ───────────── Ortak Stiller ─────────────
+const profileInputCls = "w-full px-4 py-3 rounded-xl border border-outline-variant/30 focus:border-primary focus:ring-1 focus:ring-primary outline-none bg-surface-container-lowest text-on-surface transition-all";
 
 // ───────────── Yardımcı Bileşenler ─────────────
 
@@ -697,9 +950,8 @@ function NotifToggle({ icon, title, desc, checked, onChange, accent, children }:
               className={`w-11 h-6 rounded-full relative transition-colors flex-shrink-0 ${toggleCls}`}
               aria-pressed={checked}
             >
-              <div className={`absolute top-[2px] w-5 h-5 bg-white rounded-full shadow transition-transform ${
-                checked ? 'translate-x-[22px]' : 'translate-x-[2px]'
-              }`}></div>
+              <div className={`absolute top-[2px] w-5 h-5 bg-white rounded-full shadow transition-transform ${checked ? 'translate-x-[22px]' : 'translate-x-[2px]'
+                }`}></div>
             </button>
           </div>
           {children}

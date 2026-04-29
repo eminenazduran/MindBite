@@ -1,7 +1,112 @@
 import { Link, Outlet, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useMealReminders } from '../hooks/useMealReminders';
+
+const PROFILE_MENU = [
+  { tab: 'profile',       label: 'Profil & Tercihler', icon: 'settings_account_box', desc: 'Bilgilerin ve tercihlerin' },
+  { tab: 'security',      label: 'Güvenlik',           icon: 'lock',                 desc: 'Şifre ve hesap ayarları' },
+  { tab: 'notifications', label: 'Bildirimler',        icon: 'notifications',        desc: 'Uyarı tercihlerini yönet' },
+];
+
+function ProfileDropdown({ user, onLogout }: { user: any; onLogout: () => void }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+
+  // Dışarı tıklanınca kapat
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    if (open) document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [open]);
+
+  // ESC ile kapat
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
+    if (open) document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [open]);
+
+  const initials = (user?.name || 'U').split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase();
+
+  const goToTab = (tab: string) => {
+    navigate(`/profile?tab=${tab}`);
+    setOpen(false);
+  };
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen(prev => !prev)}
+        className={`w-10 h-10 rounded-full flex items-center justify-center font-headline font-bold text-sm transition-all ${
+          open
+            ? 'bg-primary text-on-primary ring-2 ring-primary/30 scale-105'
+            : 'bg-primary/10 text-primary hover:bg-primary/20 hover:scale-105 active:scale-95'
+        }`}
+        aria-label="Profil menüsü"
+        aria-expanded={open}
+      >
+        {initials}
+      </button>
+
+      {/* Dropdown */}
+      <div
+        className={`absolute right-0 top-[calc(100%+8px)] w-72 bg-surface rounded-2xl shadow-2xl ring-1 ring-outline-variant/20 overflow-hidden transition-all duration-200 origin-top-right ${
+          open
+            ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto'
+            : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'
+        }`}
+      >
+        {/* User card */}
+        <div className="px-5 pt-5 pb-4 border-b border-outline-variant/15">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-full bg-primary/15 flex items-center justify-center font-headline font-bold text-primary text-sm">
+              {initials}
+            </div>
+            <div className="min-w-0">
+              <p className="font-bold text-on-surface truncate">{user?.name || 'Kullanıcı'}</p>
+              <p className="text-xs text-on-surface-variant truncate">{user?.email || ''}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Menu items */}
+        <div className="py-1.5">
+          {PROFILE_MENU.map(item => (
+            <button
+              key={item.tab}
+              onClick={() => goToTab(item.tab)}
+              className="w-full flex items-center gap-3 px-5 py-3 text-left hover:bg-surface-container transition-colors group"
+            >
+              <span className="material-symbols-outlined text-xl text-on-surface-variant group-hover:text-primary transition-colors">
+                {item.icon}
+              </span>
+              <div className="min-w-0">
+                <p className="text-sm font-bold text-on-surface">{item.label}</p>
+                <p className="text-[11px] text-on-surface-variant">{item.desc}</p>
+              </div>
+            </button>
+          ))}
+        </div>
+
+        {/* Logout */}
+        <div className="border-t border-outline-variant/15 p-2">
+          <button
+            onClick={() => { setOpen(false); onLogout(); }}
+            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-error hover:bg-error/5 transition-colors group"
+          >
+            <span className="material-symbols-outlined text-xl">logout</span>
+            <span className="text-sm font-bold">Çıkış Yap</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function ThemeToggleButton() {
   const { theme, toggleTheme } = useTheme();
@@ -82,17 +187,7 @@ export default function Layout() {
           <div className="flex items-center gap-2">
             <ThemeToggleButton />
             {user ? (
-              <>
-                <button
-                  onClick={handleLogout}
-                  className="px-5 py-2 text-sm font-bold text-error border border-error/20 rounded-full hover:bg-error/5 transition-all"
-                >
-                  Çıkış
-                </button>
-                <button className="p-2 text-on-surface hover:bg-surface-container rounded-full transition-transform active:scale-90">
-                  <span className="material-symbols-outlined">account_circle</span>
-                </button>
-              </>
+                <ProfileDropdown user={user} onLogout={handleLogout} />
             ) : (
               <div className="flex gap-2">
                 <Link
