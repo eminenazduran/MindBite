@@ -82,7 +82,8 @@ export const register = async (req: Request, res: Response) => {
         calorieGoal: user.calorieGoal,
         proteinGoal: user.proteinGoal,
         carbGoal: user.carbGoal,
-        fatGoal: user.fatGoal
+        fatGoal: user.fatGoal,
+        avatar: user.avatar
       }
     }));
   } catch (error: any) {
@@ -191,7 +192,8 @@ export const login = async (req: Request, res: Response) => {
         calorieGoal: user.calorieGoal,
         proteinGoal: user.proteinGoal,
         carbGoal: user.carbGoal,
-        fatGoal: user.fatGoal
+        fatGoal: user.fatGoal,
+        avatar: user.avatar
       }
     }));
   } catch (error: any) {

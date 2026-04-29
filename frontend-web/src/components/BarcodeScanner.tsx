@@ -19,6 +19,11 @@ export default function BarcodeScanner({ open, onClose, onDetected }: Props) {
   const controlsRef = useRef<{ stop: () => void } | null>(null);
   const detectedRef = useRef(false);
 
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [scanMode, setScanMode] = useState<'camera' | 'photo'>('camera');
+  const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(null);
+  const [photoFileName, setPhotoFileName] = useState<string | null>(null);
+
   const [devices, setDevices] = useState<DeviceInfo[]>([]);
   const [activeDeviceId, setActiveDeviceId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -43,6 +48,7 @@ export default function BarcodeScanner({ open, onClose, onDetected }: Props) {
   // Modal açıldığında kameraları listele
   useEffect(() => {
     if (!open) return;
+    if (scanMode !== 'camera') return;
     detectedRef.current = false;
     setError(null);
     setLastSeen(null);
@@ -75,11 +81,11 @@ export default function BarcodeScanner({ open, onClose, onDetected }: Props) {
       }
     };
     init();
-  }, [open]);
+  }, [open, scanMode]);
 
   // Aktif kamera değişince taramayı başlat
   useEffect(() => {
-    if (!open || !activeDeviceId || !videoRef.current || !readerRef.current) return;
+    if (!open || scanMode !== 'camera' || !activeDeviceId || !videoRef.current || !readerRef.current) return;
     detectedRef.current = false;
     setStatus('scanning');
 
@@ -127,9 +133,17 @@ export default function BarcodeScanner({ open, onClose, onDetected }: Props) {
   useEffect(() => {
     if (!open) {
       try { controlsRef.current?.stop(); } catch { /* yoksay */ }
+      if (photoPreviewUrl) {
+        try { URL.revokeObjectURL(photoPreviewUrl); } catch { /* yoksay */ }
+      }
+      setPhotoPreviewUrl(null);
+      setPhotoFileName(null);
+      detectedRef.current = false;
       setStatus('idle');
+      setError(null);
+      setLastSeen(null);
     }
-  }, [open]);
+  }, [open]); // photoPreviewUrl intentionally read from closure; it's only used on close
 
   if (!open) return null;
 
@@ -140,9 +154,105 @@ export default function BarcodeScanner({ open, onClose, onDetected }: Props) {
     setActiveDeviceId(next.deviceId);
   };
 
+  const pickPhoto = () => {
+    try { controlsRef.current?.stop(); } catch { /* yoksay */ }
+    setScanMode('photo');
+    setError(null);
+    setLastSeen(null);
+    setStatus('idle');
+    setTimeout(() => fileInputRef.current?.click(), 0);
+  };
+
+  const scanFromPhotoFile = async (file: File | null) => {
+    if (!file || !readerRef.current) return;
+
+    detectedRef.current = false;
+    setError(null);
+    setLastSeen(null);
+    setStatus('scanning');
+
+    if (photoPreviewUrl) {
+      try { URL.revokeObjectURL(photoPreviewUrl); } catch { /* yoksay */ }
+    }
+
+    const url = URL.createObjectURL(file);
+    setPhotoPreviewUrl(url);
+    setPhotoFileName(file.name || 'Fotoğraf');
+
+    try {
+      const img = new Image();
+      img.src = url;
+
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => resolve();
+        img.onerror = () => reject(new Error('Görsel yüklenemedi.'));
+      });
+
+      // Görsel çok büyükse (modern telefonlar 10MP+ çekiyor), ZXing yavaşlayabilir veya hata verebilir.
+      // 1280px genişliğe düşürerek performansı optimize edelim.
+      const MAX_WIDTH = 1280;
+      const MAX_HEIGHT = 1280;
+      let width = img.width;
+      let height = img.height;
+
+      if (width > MAX_WIDTH || height > MAX_HEIGHT) {
+        if (width > height) {
+          height *= MAX_WIDTH / width;
+          width = MAX_WIDTH;
+        } else {
+          width *= MAX_HEIGHT / height;
+          height = MAX_HEIGHT;
+        }
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('Canvas context oluşturulamadı.');
+      ctx.drawImage(img, 0, 0, width, height);
+
+      // Canvas'tan tara
+      const result = await readerRef.current.decodeFromCanvas(canvas);
+      const text = result?.getText?.() ?? '';
+
+      setLastSeen(text);
+
+      if (/^\d{8,14}$/.test(text)) {
+        detectedRef.current = true;
+        setStatus('success');
+
+        setTimeout(() => {
+          onDetected(text);
+        }, 350);
+        return;
+      }
+
+      setStatus('error');
+      setError('Fotoğrafta uygun bir barkod bulunamadı. Lütfen barkodun net göründüğünden ve ışığın yeterli olduğundan emin olun.');
+    } catch (e: any) {
+      console.error('Fotoğraf tarama hatası:', e);
+      setStatus('error');
+      // ZXing barkod bulamazsa genelde 'NotFoundException' fırlatır, bu bir hata değil "bulunamadı" durumudur.
+      if (e.name === 'NotFoundException' || e.message?.includes('decode')) {
+        setError('Görselde barkod tespit edilemedi. Lütfen farklı bir açıdan veya daha net bir fotoğraf deneyin.');
+      } else {
+        setError('Fotoğraftan barkod okunamadı: ' + (e?.message || 'Bilinmeyen hata'));
+      }
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in">
       <div className="relative w-full max-w-2xl bg-surface rounded-3xl shadow-2xl overflow-hidden border border-outline-variant/20">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => scanFromPhotoFile(e.target.files?.[0] ?? null)}
+        />
+
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-outline-variant/20 bg-surface-container-low">
           <div className="flex items-center gap-3">
@@ -151,7 +261,9 @@ export default function BarcodeScanner({ open, onClose, onDetected }: Props) {
             </div>
             <div>
               <h3 className="font-headline font-bold text-on-surface">Barkod Tara</h3>
-              <p className="text-xs text-on-surface-variant">Ürünün barkodunu çerçeveye hizala</p>
+              <p className="text-xs text-on-surface-variant">
+                {scanMode === 'camera' ? 'Ürünün barkodunu çerçeveye hizala' : 'Barkod içeren fotoğrafı seç'}
+              </p>
             </div>
           </div>
           <button
@@ -165,12 +277,52 @@ export default function BarcodeScanner({ open, onClose, onDetected }: Props) {
 
         {/* Video alanı */}
         <div className="relative aspect-[4/3] bg-black">
-          <video
-            ref={videoRef}
-            className="absolute inset-0 w-full h-full object-cover"
-            playsInline
-            muted
-          />
+          {scanMode === 'camera' ? (
+            <video
+              ref={videoRef}
+              className="absolute inset-0 w-full h-full object-cover"
+              playsInline
+              muted
+            />
+          ) : (
+            <div 
+              className={`absolute inset-0 cursor-pointer transition-colors ${status === 'scanning' ? 'pointer-events-none' : 'hover:bg-primary/5'}`}
+              onClick={pickPhoto}
+            >
+              {photoPreviewUrl ? (
+                <div className="relative w-full h-full">
+                  <img
+                    src={photoPreviewUrl}
+                    alt="Seçilen barkod fotoğrafı"
+                    className={`absolute inset-0 w-full h-full object-contain bg-black transition-opacity ${status === 'scanning' ? 'opacity-50' : 'opacity-100'}`}
+                  />
+                  {status === 'scanning' && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="flex flex-col items-center gap-3 bg-black/40 backdrop-blur-md px-6 py-4 rounded-2xl border border-white/10">
+                        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                        <p className="text-white text-xs font-bold">Fotoğraf Analiz Ediliyor...</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center text-center px-6">
+                  <div className="max-w-xs animate-in zoom-in-95 duration-300">
+                    <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                      <span className="material-symbols-outlined text-primary text-3xl">add_photo_alternate</span>
+                    </div>
+                    <p className="font-bold text-on-surface text-lg mb-1">Fotoğraf Seçin</p>
+                    <p className="text-sm text-on-surface-variant">
+                      Barkodun net ve parlama yapmadan göründüğü bir fotoğraf yükleyin.
+                    </p>
+                    <button className="mt-4 px-6 py-2 rounded-full bg-primary text-white text-sm font-bold shadow-lg shadow-primary/20 hover:opacity-90 transition">
+                      Dosyalara Göz At
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Tarama çerçevesi */}
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
@@ -233,14 +385,38 @@ export default function BarcodeScanner({ open, onClose, onDetected }: Props) {
 
         {/* Alt aksiyonlar */}
         <div className="flex items-center justify-between gap-3 px-5 py-4 bg-surface-container-low">
-          <button
-            onClick={switchCamera}
-            disabled={devices.length < 2}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-container-high hover:bg-surface-container-highest disabled:opacity-40 transition text-sm font-bold text-on-surface"
-          >
-            <span className="material-symbols-outlined text-base">cameraswitch</span>
-            Kamera Değiştir
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                setScanMode('camera');
+                setError(null);
+                setLastSeen(null);
+                setStatus('idle');
+              }}
+              disabled={scanMode === 'camera'}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-container-high hover:bg-surface-container-highest disabled:opacity-40 transition text-sm font-bold text-on-surface"
+            >
+              <span className="material-symbols-outlined text-base">videocam</span>
+              Kamera
+            </button>
+
+            <button
+              onClick={pickPhoto}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-container-high hover:bg-surface-container-highest transition text-sm font-bold text-on-surface"
+            >
+              <span className="material-symbols-outlined text-base">image</span>
+              Fotoğrafla Tara
+            </button>
+
+            <button
+              onClick={switchCamera}
+              disabled={scanMode !== 'camera' || devices.length < 2}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-container-high hover:bg-surface-container-highest disabled:opacity-40 transition text-sm font-bold text-on-surface"
+            >
+              <span className="material-symbols-outlined text-base">cameraswitch</span>
+              Kamera Değiştir
+            </button>
+          </div>
 
           <p className="text-xs text-on-surface-variant hidden sm:block">
             EAN-13, EAN-8, UPC-A/E, Code-128 destekli
