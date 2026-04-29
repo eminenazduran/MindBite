@@ -24,6 +24,7 @@ export interface IUser extends Document {
   proteinGoal?: number; // g
   carbGoal?: number;    // g
   fatGoal?: number;     // g
+  avatar?: string;      // preset adı veya base64 veri URL
   createdAt: Date;
   updatedAt: Date;
 }
@@ -55,6 +56,7 @@ const userSchema: Schema = new Schema(
     proteinGoal: { type: Number },
     carbGoal: { type: Number },
     fatGoal: { type: Number },
+    avatar: { type: String, default: '' },
   },
   {
     timestamps: true,

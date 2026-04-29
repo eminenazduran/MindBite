@@ -15,7 +15,7 @@ const app: Application = express();
 // Güvenlik ve Utility Middleware'leri
 app.use(helmet()); // Temel HTTP güvenlik başlıkları
 app.use(cors()); // Cross-Origin Resource Sharing
-app.use(express.json()); // Gelen JSON verilerini parse et
+app.use(express.json({ limit: '10mb' })); // Gelen JSON verilerini parse et (base64 avatar için limit artırıldı)
 app.use(morgan('dev')); // İstek loglama
 
 // Basit Sağlık Kontrolü Route'u

@@ -53,7 +53,19 @@ export const fetchUser = async (userId: string) => {
   return res.json();
 };
 
-export const updateUser = async (userId: string, data: { name?: string; allergies?: string[]; calorieGoal?: number }) => {
+export const updateUser = async (userId: string, data: {
+  name?: string;
+  allergies?: string[];
+  calorieGoal?: number;
+  avatar?: string;
+  age?: number;
+  gender?: string;
+  height?: number;
+  weight?: number;
+  activityLevel?: string;
+  goal?: string;
+  autoCalculate?: boolean;
+}) => {
   const res = await fetch(`${API_URL}/users/${userId}`, {
     method: 'PUT',
     headers: getHeaders(),

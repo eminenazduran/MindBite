@@ -50,7 +50,7 @@ export const updateUser = async (req: Request, res: Response) => {
     const {
       name, allergies, calorieGoal,
       age, gender, height, weight, activityLevel, goal,
-      autoCalculate
+      autoCalculate, avatar
     } = req.body;
 
     const user = await User.findById(userId);
@@ -61,6 +61,7 @@ export const updateUser = async (req: Request, res: Response) => {
     // Basit alanları güncelle
     if (typeof name === 'string') user.name = name;
     if (Array.isArray(allergies)) user.allergies = allergies;
+    if (typeof avatar === 'string') user.avatar = avatar;
 
     // Beslenme profili alanları
     if (typeof age === 'number') user.age = age;

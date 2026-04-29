@@ -10,6 +10,44 @@ const PROFILE_MENU = [
   { tab: 'notifications', label: 'Bildirimler',        icon: 'notifications',        desc: 'Uyarı tercihlerini yönet' },
 ];
 
+const AVATAR_MAP: Record<string, { emoji: string; bg: string }> = {
+  cat: { emoji: '🐱', bg: '#C8B6FF' }, dog: { emoji: '🐶', bg: '#FFD6A5' },
+  panda: { emoji: '🐼', bg: '#D0F4DE' }, rabbit: { emoji: '🐰', bg: '#FFADAD' },
+  fox: { emoji: '🦊', bg: '#FFE5D9' }, bear: { emoji: '🐻', bg: '#CAFFBF' },
+  penguin: { emoji: '🐧', bg: '#BDE0FE' }, unicorn: { emoji: '🦄', bg: '#FFC6FF' },
+  bird: { emoji: '🐦', bg: '#FEF9EF' }, butterfly: { emoji: '🦋', bg: '#A2D2FF' },
+  avocado: { emoji: '🥑', bg: '#B5E48C' }, pizza: { emoji: '🍕', bg: '#FDFFB6' },
+  sushi: { emoji: '🍣', bg: '#FFADAD' }, watermelon: { emoji: '🍉', bg: '#FF6B6B' },
+  icecream: { emoji: '🍦', bg: '#FFE5EC' }, cupcake: { emoji: '🧁', bg: '#F8C8DC' },
+  basketball: { emoji: '🏀', bg: '#FFB347' }, bike: { emoji: '🚴', bg: '#A0C4FF' },
+  guitar: { emoji: '🎸', bg: '#FFD6A5' }, palette: { emoji: '🎨', bg: '#FFC6FF' },
+  camera: { emoji: '📷', bg: '#E2E2E2' }, rocket: { emoji: '🚀', bg: '#BDB2FF' },
+  sunflower: { emoji: '🌻', bg: '#FDFFB6' }, rainbow: { emoji: '🌈', bg: '#D0F4DE' },
+  star: { emoji: '⭐', bg: '#FFF3BF' }, moon: { emoji: '🌙', bg: '#1B1464' },
+  leaf: { emoji: '🍃', bg: '#95D5B2' }, diamond: { emoji: '💎', bg: '#A2D2FF' },
+};
+
+function AvatarCircle({ avatar, initials, size = 'sm' }: { avatar?: string; initials: string; size?: 'sm' | 'md' }) {
+  const cls = size === 'md' ? 'w-11 h-11 text-lg' : 'w-10 h-10 text-sm';
+
+  if (avatar && avatar.startsWith('data:')) {
+    return <img src={avatar} alt="Avatar" className={`${cls} rounded-full object-cover`} />;
+  }
+  if (avatar && AVATAR_MAP[avatar]) {
+    const p = AVATAR_MAP[avatar];
+    return (
+      <div className={`${cls} rounded-full flex items-center justify-center`} style={{ backgroundColor: p.bg }}>
+        <span className={size === 'md' ? 'text-xl' : 'text-base'}>{p.emoji}</span>
+      </div>
+    );
+  }
+  return (
+    <div className={`${cls} rounded-full bg-primary/15 flex items-center justify-center font-headline font-bold text-primary`}>
+      {initials}
+    </div>
+  );
+}
+
 function ProfileDropdown({ user, onLogout }: { user: any; onLogout: () => void }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -42,15 +80,13 @@ function ProfileDropdown({ user, onLogout }: { user: any; onLogout: () => void }
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(prev => !prev)}
-        className={`w-10 h-10 rounded-full flex items-center justify-center font-headline font-bold text-sm transition-all ${
-          open
-            ? 'bg-primary text-on-primary ring-2 ring-primary/30 scale-105'
-            : 'bg-primary/10 text-primary hover:bg-primary/20 hover:scale-105 active:scale-95'
+        className={`rounded-full transition-all ${
+          open ? 'ring-2 ring-primary/30 scale-105' : 'hover:scale-105 active:scale-95'
         }`}
         aria-label="Profil menüsü"
         aria-expanded={open}
       >
-        {initials}
+        <AvatarCircle avatar={user?.avatar} initials={initials} />
       </button>
 
       {/* Dropdown */}
@@ -64,9 +100,7 @@ function ProfileDropdown({ user, onLogout }: { user: any; onLogout: () => void }
         {/* User card */}
         <div className="px-5 pt-5 pb-4 border-b border-outline-variant/15">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-full bg-primary/15 flex items-center justify-center font-headline font-bold text-primary text-sm">
-              {initials}
-            </div>
+            <AvatarCircle avatar={user?.avatar} initials={initials} size="md" />
             <div className="min-w-0">
               <p className="font-bold text-on-surface truncate">{user?.name || 'Kullanıcı'}</p>
               <p className="text-xs text-on-surface-variant truncate">{user?.email || ''}</p>
@@ -180,7 +214,6 @@ export default function Layout() {
               <>
                 <Link className="text-on-surface-variant hover:text-on-surface transition-all duration-300" to="/dashboard">Panelim</Link>
                 <Link className="text-on-surface-variant hover:text-on-surface transition-all duration-300" to="/analysis">Ürünler</Link>
-                <Link className="text-on-surface-variant hover:text-on-surface transition-all duration-300" to="/profile">Profil</Link>
               </>
             )}
           </div>
