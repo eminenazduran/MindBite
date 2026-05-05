@@ -8,6 +8,7 @@ import userRoutes from './routes/userRoutes';
 import scanRoutes from './routes/scanRoutes';
 import foodRoutes from './routes/foodRoutes';
 import authRoutes from './routes/authRoutes';
+import aiRoutes from './routes/aiRoutes';
 
 // Express uygulamasını başlat
 const app: Application = express();
@@ -32,6 +33,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/scan', scanRoutes);
 app.use('/api/food', foodRoutes);
+app.use('/api/ai', aiRoutes);
 
 // 404 Route Bulunamadı Handler
 app.use((req: Request, res: Response, next: NextFunction) => {

@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:5000/api';
+const API_URL = `http://${window.location.hostname}:5001/api`;
 
 const getHeaders = () => {
   const token = localStorage.getItem('token');
@@ -164,6 +164,43 @@ export const logNaturalMeal = async (userId: string, mealDescription: string) =>
 
 export const fetchHealthScore = async (userId: string, days: number = 7) => {
   const res = await fetch(`${API_URL}/users/${userId}/health-score?days=${days}`, {
+    headers: getHeaders()
+  });
+  return res.json();
+};
+
+// ─── LABEL & AI ───────────────────────────────────────────────────────────────
+// Barkodsuz, sadece içindekiler metni ile analiz (OCR veya manuel)
+export const analyzeLabelOnly = async (ingredientsText: string, servingSize: number = 100) => {
+  const res = await fetch(`${API_URL}/scan/label-analyze`, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({ ingredientsText, servingSize })
+  });
+  return res.json();
+};
+
+// Taranan ürün için kullanıcı profiline göre kişiselleştirilmiş AI öneri
+export const getAIRecommendation = async (foodId: string, servingSize: number = 100) => {
+  const res = await fetch(`${API_URL}/scan/ai-recommend`, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({ foodId, servingSize })
+  });
+  return res.json();
+};
+// ─── AI ───────────────────────────────────────────────────────────────────────
+export const sendChatMessage = async (message: string, history: { role: string; content: string }[]) => {
+  const res = await fetch(`${API_URL}/ai/chat`, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({ message, history })
+  });
+  return res.json();
+};
+
+export const fetchWeeklyReport = async () => {
+  const res = await fetch(`${API_URL}/ai/weekly-report`, {
     headers: getHeaders()
   });
   return res.json();

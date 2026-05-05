@@ -9,12 +9,15 @@ import {
   deleteScan,
 } from '../controllers/scanController';
 import { getScanHistory } from '../controllers/scanHistoryController';
+import { analyzeLabelOnly, getAIRecommendation } from '../controllers/labelController';
 import { authMiddleware } from '../middlewares/authMiddleware';
 
 const router = Router();
 
 router.post('/', authMiddleware, scanProduct);
 router.post('/natural', authMiddleware, logNaturalMeal);
+router.post('/label-analyze', authMiddleware, analyzeLabelOnly);
+router.post('/ai-recommend', authMiddleware, getAIRecommendation);
 router.get('/history/:userId', authMiddleware, getScanHistory);
 router.patch('/:id/consume', authMiddleware, markScanConsumed);
 router.patch('/:id/unconsume', authMiddleware, unmarkScanConsumed);
@@ -23,3 +26,4 @@ router.patch('/:id/restore', authMiddleware, restoreScan);
 router.delete('/:id', authMiddleware, deleteScan);
 
 export default router;
+

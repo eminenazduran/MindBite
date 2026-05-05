@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useMealReminders } from '../hooks/useMealReminders';
+import AiChat from './AiChat';
 
 const PROFILE_MENU = [
   { tab: 'profile',       label: 'Profil & Tercihler', icon: 'settings_account_box', desc: 'Bilgilerin ve tercihlerin' },
@@ -243,6 +244,9 @@ export default function Layout() {
 
       {/* Main Content Area */}
       <Outlet />
+
+      {/* AI Floating Chat — sadece giriş yapılmışsa */}
+      <AiChat />
 
       {/* Bottom NavBar for Mobile */}
       <nav className="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-6 pb-6 pt-3 bg-surface/85 backdrop-blur-2xl z-50 rounded-t-[3rem] shadow-[0_-16px_48px_rgba(0,0,0,0.06)] border-t border-outline-variant/20">

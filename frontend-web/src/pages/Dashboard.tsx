@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { fetchUser, getScanHistory, fetchDailyAdvice, logNaturalMeal, fetchHealthScore, unmarkScanConsumed, deleteScan } from '../api';
 import { useAuth } from '../context/AuthContext';
 import NotificationBanners from '../components/NotificationBanners';
+import WeeklyReport from '../components/WeeklyReport';
 
 export default function Dashboard() {
   const { user: authUser } = useAuth();
@@ -15,6 +16,7 @@ export default function Dashboard() {
   const [quantity, setQuantity] = useState<string>('1');
   const [unit, setUnit] = useState<string>('porsiyon');
   const [logging, setLogging] = useState(false);
+  const [showWeeklyReport, setShowWeeklyReport] = useState(false);
 
   const UNIT_OPTIONS: Array<{ value: string; label: string }> = [
     { value: 'porsiyon', label: 'Porsiyon' },
@@ -163,7 +165,7 @@ export default function Dashboard() {
             Bugün hedeflerine ulaşmak için harika bir gün.
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 items-center">
           <SummaryPill
             icon="local_fire_department"
             label="Kalori"
@@ -176,6 +178,17 @@ export default function Dashboard() {
             value={todayScore !== null ? `${todayScore}/100` : '—'}
             tone="tertiary"
           />
+          <button
+            onClick={() => setShowWeeklyReport(r => !r)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold transition-all border ${
+              showWeeklyReport
+                ? 'bg-primary text-white border-primary shadow-md'
+                : 'bg-surface-container-high text-on-surface-variant border-outline-variant/30 hover:border-primary/40 hover:text-primary'
+            }`}
+          >
+            <span className="material-symbols-outlined text-base">insights</span>
+            Haftalık Rapor
+          </button>
         </div>
       </section>
 
@@ -470,6 +483,13 @@ export default function Dashboard() {
           </div>
         )}
       </section>
+
+      {/* ── HAFTALIK AI RAPORU ── */}
+      {showWeeklyReport && (
+        <section id="weekly-report" className="scroll-mt-24">
+          <WeeklyReport onClose={() => setShowWeeklyReport(false)} />
+        </section>
+      )}
     </main>
   );
 }

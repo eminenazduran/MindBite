@@ -172,6 +172,17 @@ const COLORANTS: RiskyAdditive[] = [
 // =====================================================================
 const PRESERVATIVES: RiskyAdditive[] = [
   {
+    code: 'E385',
+    displayName: 'Kalsiyum Disodyum EDTA (E385)',
+    aliases: ['Calcium disodium EDTA', 'Kalsiyum disodyum etilendiamintetraasetat', 'Kalsiyum disodyum edta', 'edta'],
+    keywords: ['e385', 'edta', 'kalsiyum disodyum', 'calcium disodium'],
+    category: 'preservative',
+    severity: 'LOW',
+    shortLabel: 'Mineral emilimini etkileyebilir',
+    warning: 'Yağın oksitlenmesini önleyen sentetik koruyucudur. FDA ve EFSA tarafından limitler dahilinde güvenli kabul edilse de aşırı tüketimi vücuttaki minerallerin (demir, çinko) emilimini olumsuz etkileyebilir.',
+    sensitiveGroups: ['Mineral eksikliği olanlar']
+  },
+  {
     code: 'E210',
     displayName: 'Benzoik Asit (E210)',
     aliases: ['Benzoic Acid'],
@@ -394,6 +405,27 @@ const FLAVOR_ENHANCERS: RiskyAdditive[] = [
 // 5) EMÜLGATÖR / KIVAMLAŞTIRICI (tartışmalı)
 // =====================================================================
 const EMULSIFIERS: RiskyAdditive[] = [
+  {
+    code: 'E415',
+    displayName: 'Ksantan Gum (E415)',
+    aliases: ['Xanthan Gum', 'Ksantan gam', 'Kıvam artırıcı (ksantan gum)'],
+    keywords: ['e415', 'ksantan', 'xanthan', 'ksantan gum'],
+    category: 'emulsifier',
+    severity: 'LOW',
+    shortLabel: 'Sindirim sorunları yapabilir',
+    warning: 'Genel kullanımda güvenli (GRAS) kabul edilen bir kıvam artırıcıdır. Ancak lifli yapısı gereği hassas kişilerde, özellikle IBS hastalarında şişkinlik ve gaza neden olabilir.',
+    sensitiveGroups: ['IBS hastaları', 'Sindirim sorunu yaşayanlar']
+  },
+  {
+    code: 'MODIFIED_STARCH',
+    displayName: 'Modifiye Nişasta',
+    aliases: ['Modifiye mısır nişastası', 'Modified starch', 'E1422', 'E1442'],
+    keywords: ['modifiye', 'nişasta', 'starch', 'e1422', 'e1442', 'e14'],
+    category: 'emulsifier',
+    severity: 'LOW',
+    shortLabel: 'İşlenmiş karbonhidrat',
+    warning: 'Kimyasal veya fiziksel işlemlerden geçirilmiş aşırı işlenmiş bir karbonhidrattır. Genel sağlık için akut tehdit oluşturmasa da aşırı tüketiminde kan şekerini hızlı etkileyebilir.',
+  },
   {
     code: 'E407',
     displayName: 'Karagenan (E407)',

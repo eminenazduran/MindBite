@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { scanProduct, searchFood, markScanConsumed, unmarkScanConsumed, deleteScan, dismissScan, restoreScan, getScanHistory } from '../api';
+import { scanProduct, searchFood, markScanConsumed, unmarkScanConsumed, deleteScan, dismissScan, restoreScan, getScanHistory, analyzeLabelOnly, getAIRecommendation } from '../api';
 import { useAuth } from '../context/AuthContext';
 import BarcodeScanner from '../components/BarcodeScanner';
 import OCRScanner from '../components/OCRScanner';
 
-type InputMode = 'barcode' | 'search';
+type InputMode = 'barcode' | 'search' | 'label';
 
 const QUICK_PORTIONS = [50, 100, 150, 200, 250];
 
@@ -32,6 +32,14 @@ export default function Analysis() {
   const [scanId, setScanId] = useState<string | null>(null);
   const [consumed, setConsumed] = useState(false);
   const [consuming, setConsuming] = useState(false);
+
+  // Label (etiket) tarama modu
+  const [labelText, setLabelText] = useState('');
+  const [labelOcrOpen, setLabelOcrOpen] = useState(false);
+
+  // AI öneri paneli
+  const [aiRecommendation, setAiRecommendation] = useState<any>(null);
+  const [aiRecommendLoading, setAiRecommendLoading] = useState(false);
 
   // Tarama geçmişi (kullanıcıya özel)
   const [history, setHistory] = useState<any[]>([]);
@@ -118,12 +126,57 @@ export default function Analysis() {
     setServingSize(100);
     setNeedsOcr(false);
     setOcrText('');
+    setLabelText('');
     setAnalysisResult(null);
     setError(null);
     setSearchResults([]);
     setSearchQuery('');
     setScanId(null);
     setConsumed(false);
+    setAiRecommendation(null);
+  };
+
+  // Barkodsuz etiket/içerik analizi
+  const handleLabelAnalyze = async () => {
+    if (!labelText.trim() || !user) return;
+    setLoading(true);
+    setError(null);
+    setAnalysisResult(null);
+    setAiRecommendation(null);
+    try {
+      const res = await analyzeLabelOnly(labelText, servingSize);
+      if (res.status === 'success') {
+        setAnalysisResult(res.data);
+        setScanId(res.data?.scanId || null);
+        setConsumed(false);
+        loadHistory();
+        // Hemen AI öneri de al
+        if (res.data?.food?._id) {
+          fetchAIRecommendation(res.data.food._id, servingSize);
+        }
+      } else {
+        setError(res.message || 'Etiket analizi başarısız oldu.');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Analiz sırasında hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // AI öneri panelini doldur
+  const fetchAIRecommendation = async (foodId: string, serving: number) => {
+    setAiRecommendLoading(true);
+    try {
+      const res = await getAIRecommendation(foodId, serving);
+      if (res.status === 'success') {
+        setAiRecommendation(res.data);
+      }
+    } catch (e) {
+      console.error('AI öneri hatası:', e);
+    } finally {
+      setAiRecommendLoading(false);
+    }
   };
 
   const handleConsume = async () => {
@@ -193,8 +246,13 @@ export default function Analysis() {
     finally { setBusyId(null); }
   };
 
-  // Sadece barkod ile taranan ürünleri göster (elle girilen "hızlı öğün" kayıtları değil)
-  const scannedOnly = history.filter(h => h.foodId && h.foodId.isGeneric !== true);
+  // Sadece barkod ile taranan ürünleri göster (elle girilen "hızlı öğün" ve "etiket tarama" kayıtları hariç)
+  const scannedOnly = history.filter(h =>
+    h.foodId &&
+    h.foodId.isGeneric !== true &&
+    !h.barcode?.startsWith('L-') &&
+    !h.foodId.barcode?.startsWith('L-')
+  );
 
   const filteredHistory = scannedOnly.filter(h => {
     if (historyFilter === 'pending') return h.consumed !== true && h.dismissed !== true;
@@ -266,25 +324,33 @@ export default function Analysis() {
             <div className="inline-flex bg-surface-container-high rounded-2xl p-1.5 shadow-inner">
               <button
                 onClick={() => { setMode('barcode'); setError(null); setSearchResults([]); }}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${
-                  mode === 'barcode'
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${mode === 'barcode'
                     ? 'bg-surface-container-lowest text-primary shadow-md'
                     : 'text-on-surface-variant hover:text-on-surface'
-                }`}
+                  }`}
               >
                 <span className="material-symbols-outlined text-lg">barcode_scanner</span>
                 Barkod
               </button>
               <button
                 onClick={() => { setMode('search'); setError(null); setNeedsOcr(false); }}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${
-                  mode === 'search'
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${mode === 'search'
                     ? 'bg-surface-container-lowest text-primary shadow-md'
                     : 'text-on-surface-variant hover:text-on-surface'
-                }`}
+                  }`}
               >
                 <span className="material-symbols-outlined text-lg">search</span>
                 Ürün Ara
+              </button>
+              <button
+                onClick={() => { setMode('label'); setError(null); setNeedsOcr(false); }}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${mode === 'label'
+                    ? 'bg-surface-container-lowest text-primary shadow-md'
+                    : 'text-on-surface-variant hover:text-on-surface'
+                  }`}
+              >
+                <span className="material-symbols-outlined text-lg">document_scanner</span>
+                Etiket Tara
               </button>
             </div>
           </div>
@@ -408,8 +474,39 @@ export default function Analysis() {
             </div>
           )}
 
-          {/* ─── Porsiyon seçimi ─── */}
-          {!needsOcr && (
+          {/* Barkodsuz Etiket Tarama */}
+          {mode === 'label' && (
+            <div className="space-y-4 max-w-2xl mx-auto">
+              <div className="mb-4 p-4 rounded-xl bg-surface-container-lowest border-2 border-dashed border-secondary/30 flex flex-col sm:flex-row items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-secondary/15 flex items-center justify-center flex-shrink-0">
+                  <span className="material-symbols-outlined text-secondary text-2xl">photo_camera</span>
+                </div>
+                <div className="flex-1 text-center sm:text-left">
+                  <p className="font-bold text-on-surface text-sm">Etiketi fotoğraflayın</p>
+                  <p className="text-xs text-on-surface-variant">Yazmak yerine fotoğraf çekin — metin otomatik çıkarılır.</p>
+                </div>
+                <button
+                  onClick={() => setLabelOcrOpen(true)}
+                  className="px-5 py-2.5 bg-secondary text-white text-sm font-bold rounded-xl hover:opacity-90 transition flex items-center gap-2 shadow-sm"
+                >
+                  <span className="material-symbols-outlined text-base">document_scanner</span>
+                  Fotoğraftan Oku
+                </button>
+              </div>
+
+              <div className="relative">
+                <textarea
+                  value={labelText}
+                  onChange={(e) => setLabelText(e.target.value)}
+                  placeholder="...veya içindekiler listesini buraya yapıştırın. Örn: Buğday unu, Şeker, Bitkisel Yağ..."
+                  className="w-full p-4 rounded-xl border-none ring-1 ring-outline-variant/30 focus:ring-2 focus:ring-primary outline-none min-h-[120px] bg-surface-container-lowest text-on-surface font-medium"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* ─── Porsiyon seçimi (Etiket taramasında gizli) ─── */}
+          {!needsOcr && (mode === 'barcode' || mode === 'search') && (
             <div className="mt-6 pt-6 border-t border-outline-variant/20 max-w-2xl mx-auto">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
@@ -431,11 +528,10 @@ export default function Analysis() {
                   <button
                     key={g}
                     onClick={() => setServingSize(g)}
-                    className={`flex-1 min-w-[60px] px-3 py-2 rounded-xl text-sm font-bold transition-all ${
-                      servingSize === g
+                    className={`flex-1 min-w-[60px] px-3 py-2 rounded-xl text-sm font-bold transition-all ${servingSize === g
                         ? 'bg-primary text-white shadow-md'
                         : 'bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest'
-                    }`}
+                      }`}
                   >
                     {g}g
                   </button>
@@ -444,12 +540,12 @@ export default function Analysis() {
             </div>
           )}
 
-          {/* Analiz butonu (barkod modunda) */}
-          {mode === 'barcode' && !needsOcr && (
+          {/* Analiz butonu (barkod ve etiket modunda) */}
+          {(mode === 'barcode' || mode === 'label') && !needsOcr && (
             <div className="mt-6 max-w-2xl mx-auto">
               <button
-                onClick={() => handleScan()}
-                disabled={loading || !barcode}
+                onClick={mode === 'label' ? handleLabelAnalyze : handleScan}
+                disabled={loading || (mode === 'barcode' ? !barcode : !labelText)}
                 className="w-full px-8 py-4 hero-gradient text-white font-extrabold text-lg rounded-2xl hover:scale-[1.01] transition-all disabled:opacity-50 disabled:hover:scale-100 shadow-lg flex items-center justify-center gap-2"
               >
                 {loading ? (
@@ -617,108 +713,109 @@ export default function Analysis() {
       {/* ─── Sonuç Gösterimi (mevcut layout korundu) ─── */}
       {analysisResult && (
         <>
-          {/* ── Tüketim Onayı Banner'ı ── */}
-          <section className={`rounded-3xl p-5 md:p-6 border-2 shadow-sm ${
-            consumed
-              ? 'bg-primary/10 border-primary/30'
-              : 'bg-gradient-to-br from-primary/5 via-secondary/5 to-tertiary/5 border-primary/20'
-          }`}>
-            {consumed ? (
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-primary text-on-primary flex items-center justify-center flex-shrink-0 shadow-md">
-                  <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-headline font-bold text-on-surface">Günlük Sayaca Eklendi</h3>
-                  <p className="text-sm text-on-surface-variant mt-0.5">
-                    Bu ürün <strong>{servingSize}g</strong> porsiyonla bugünün kalori ve makro hesabına dahil edildi.
-                  </p>
-                </div>
-                <button
-                  onClick={resetAll}
-                  className="px-5 py-2.5 rounded-xl bg-surface-container-lowest border border-primary/30 text-primary text-sm font-bold hover:bg-primary/10 transition flex items-center gap-2"
-                >
-                  <span className="material-symbols-outlined text-base">add</span>
-                  Yeni Tarama
-                </button>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-4">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
-                    <span className="material-symbols-outlined text-2xl">restaurant_menu</span>
+          {/* ── Tüketim Onayı Banner'ı (Etiket Taramasında Gizli) ── */}
+          {analysisResult.source !== 'label_ocr' && (
+            <section className={`rounded-3xl p-5 md:p-6 border-2 shadow-sm ${consumed
+                ? 'bg-primary/10 border-primary/30'
+                : 'bg-gradient-to-br from-primary/5 via-secondary/5 to-tertiary/5 border-primary/20'
+              }`}>
+              {consumed ? (
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-primary text-on-primary flex items-center justify-center flex-shrink-0 shadow-md">
+                    <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-headline font-bold text-on-surface">Bu ürünü tükettin mi?</h3>
+                    <h3 className="font-headline font-bold text-on-surface">Günlük Sayaca Eklendi</h3>
                     <p className="text-sm text-on-surface-variant mt-0.5">
-                      Sadece taradığın için kalori sayacına otomatik eklenmedi. Yediysen aşağıdan onayla, porsiyonu da düzenleyebilirsin.
+                      Bu ürün <strong>{servingSize}g</strong> porsiyonla bugünün kalori ve makro hesabına dahil edildi.
                     </p>
                   </div>
+                  <button
+                    onClick={resetAll}
+                    className="px-5 py-2.5 rounded-xl bg-surface-container-lowest border border-primary/30 text-primary text-sm font-bold hover:bg-primary/10 transition flex items-center gap-2"
+                  >
+                    <span className="material-symbols-outlined text-base">add</span>
+                    Yeni Tarama
+                  </button>
                 </div>
+              ) : (
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
+                      <span className="material-symbols-outlined text-2xl">restaurant_menu</span>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-headline font-bold text-on-surface">Bu ürünü tükettin mi?</h3>
+                      <p className="text-sm text-on-surface-variant mt-0.5">
+                        Sadece taradığın için kalori sayacına otomatik eklenmedi. Yediysen aşağıdan onayla, porsiyonu da düzenleyebilirsin.
+                      </p>
+                    </div>
+                  </div>
 
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pt-2 border-t border-primary/10">
-                  {/* Porsiyon ayarı */}
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Porsiyon</span>
-                    <div className="inline-flex items-center bg-surface-container-lowest border border-outline-variant/40 rounded-xl shadow-sm overflow-hidden">
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pt-2 border-t border-primary/10">
+                    {/* Porsiyon ayarı */}
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Porsiyon</span>
+                      <div className="inline-flex items-center bg-surface-container-lowest border border-outline-variant/40 rounded-xl shadow-sm overflow-hidden">
+                        <button
+                          onClick={() => setServingSize(s => Math.max(10, s - 25))}
+                          className="px-3 py-2 hover:bg-surface-container-high text-on-surface-variant"
+                          disabled={consuming}
+                        >
+                          <span className="material-symbols-outlined text-base">remove</span>
+                        </button>
+                        <input
+                          type="number"
+                          min={1}
+                          value={servingSize}
+                          onChange={(e) => setServingSize(Math.max(1, Number(e.target.value)))}
+                          className="w-16 text-center font-extrabold text-primary outline-none bg-transparent py-2"
+                        />
+                        <span className="pr-3 text-xs font-bold text-on-surface-variant">g</span>
+                        <button
+                          onClick={() => setServingSize(s => s + 25)}
+                          className="px-3 py-2 hover:bg-surface-container-high text-on-surface-variant"
+                          disabled={consuming}
+                        >
+                          <span className="material-symbols-outlined text-base">add</span>
+                        </button>
+                      </div>
+                      <span className="text-sm font-bold text-on-surface hidden sm:inline">
+                        ≈ {Math.round(((analysisResult.food.calories || 0) * servingSize) / 100)} kcal
+                      </span>
+                    </div>
+
+                    {/* Aksiyonlar */}
+                    <div className="flex gap-2">
                       <button
-                        onClick={() => setServingSize(s => Math.max(10, s - 25))}
-                        className="px-3 py-2 hover:bg-surface-container-high text-on-surface-variant"
-                        disabled={consuming}
+                        onClick={resetAll}
+                        className="px-5 py-2.5 rounded-xl text-sm font-bold text-on-surface-variant border border-outline-variant/40 hover:bg-surface-container-high transition"
                       >
-                        <span className="material-symbols-outlined text-base">remove</span>
+                        Yedimedim
                       </button>
-                      <input
-                        type="number"
-                        min={1}
-                        value={servingSize}
-                        onChange={(e) => setServingSize(Math.max(1, Number(e.target.value)))}
-                        className="w-16 text-center font-extrabold text-primary outline-none bg-transparent py-2"
-                      />
-                      <span className="pr-3 text-xs font-bold text-on-surface-variant">g</span>
                       <button
-                        onClick={() => setServingSize(s => s + 25)}
-                        className="px-3 py-2 hover:bg-surface-container-high text-on-surface-variant"
-                        disabled={consuming}
+                        onClick={handleConsume}
+                        disabled={consuming || !scanId}
+                        className="px-6 py-2.5 rounded-xl bg-primary text-white text-sm font-extrabold hover:opacity-90 disabled:opacity-50 transition flex items-center gap-2 shadow-md"
                       >
-                        <span className="material-symbols-outlined text-base">add</span>
+                        {consuming ? (
+                          <>
+                            <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            Ekleniyor...
+                          </>
+                        ) : (
+                          <>
+                            <span className="material-symbols-outlined text-base">check</span>
+                            Tükettim — Sayaca Ekle
+                          </>
+                        )}
                       </button>
                     </div>
-                    <span className="text-sm font-bold text-on-surface hidden sm:inline">
-                      ≈ {Math.round(((analysisResult.food.calories || 0) * servingSize) / 100)} kcal
-                    </span>
-                  </div>
-
-                  {/* Aksiyonlar */}
-                  <div className="flex gap-2">
-                    <button
-                      onClick={resetAll}
-                      className="px-5 py-2.5 rounded-xl text-sm font-bold text-on-surface-variant border border-outline-variant/40 hover:bg-surface-container-high transition"
-                    >
-                      Yedimedim
-                    </button>
-                    <button
-                      onClick={handleConsume}
-                      disabled={consuming || !scanId}
-                      className="px-6 py-2.5 rounded-xl bg-primary text-white text-sm font-extrabold hover:opacity-90 disabled:opacity-50 transition flex items-center gap-2 shadow-md"
-                    >
-                      {consuming ? (
-                        <>
-                          <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                          Ekleniyor...
-                        </>
-                      ) : (
-                        <>
-                          <span className="material-symbols-outlined text-base">check</span>
-                          Tükettim — Sayaca Ekle
-                        </>
-                      )}
-                    </button>
                   </div>
                 </div>
-              </div>
-            )}
-          </section>
+              )}
+            </section>
+          )}
 
           <section className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
             <div className="lg:col-span-5 relative group">
@@ -736,9 +833,11 @@ export default function Analysis() {
                   <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-secondary-container text-on-secondary-container font-headline font-bold text-sm tracking-wide">
                     AKILLI ANALİZ SONUCU
                   </span>
-                  <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-primary-fixed text-on-primary-fixed font-headline font-bold text-sm tracking-wide">
-                    {servingSize} GR İÇİN
-                  </span>
+                  {analysisResult.source !== 'label_ocr' && (
+                    <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-primary-fixed text-on-primary-fixed font-headline font-bold text-sm tracking-wide">
+                      {servingSize} GR İÇİN
+                    </span>
+                  )}
                 </div>
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-headline font-extrabold text-primary tracking-tight leading-tight">
                   {analysisResult.food.productName}
@@ -751,53 +850,67 @@ export default function Analysis() {
                 const hasAllergen = matched.length > 0;
                 const hasHighRisky = risky.some((r) => r.severity === 'HIGH');
                 const hasMediumRisky = risky.some((r) => r.severity === 'MEDIUM');
-                const hasAnyRisky = risky.length > 0;
+                const hasLowRisky = risky.some((r) => r.severity === 'LOW');
 
                 let bg = 'bg-primary/10 border-primary/20';
                 let circle = 'bg-primary';
                 let textColor = 'text-primary';
                 let icon = 'check_circle';
                 let title = 'Senin İçin Güvenli';
-                let message = 'Profilinize ve genel sağlık kriterlerine göre belirgin bir risk bulunmadı.';
 
-                if (hasAllergen) {
-                  bg = 'bg-error/10 border-error/30';
-                  circle = 'bg-error';
-                  textColor = 'text-error';
-                  icon = 'warning';
-                  title = 'Riskli Ürün — Alerjen Tespit Edildi';
-                  message = `Profilinde tanımlı ${matched.join(', ')} bu üründe bulundu.`;
-                } else if (hasHighRisky) {
+                let allergenMsg = hasAllergen 
+                  ? `Alerjenler açısından RİSKLİ (Profilindeki ${matched.join(', ')} bulunuyor)` 
+                  : `Alerjenler açısından bir sıkıntı yok`;
+
+                let additiveMsg = "";
+
+                if (hasHighRisky) {
                   bg = 'bg-error/10 border-error/30';
                   circle = 'bg-error';
                   textColor = 'text-error';
                   icon = 'gpp_maybe';
-                  title = 'Yüksek Risk — Dikkatli Tüket';
-                  message = `${risky.filter(r => r.severity === 'HIGH').length} adet yüksek riskli madde tespit edildi.`;
+                  title = hasAllergen ? 'Yüksek Risk & Alerjen Tespit Edildi' : 'Yüksek Risk Kategorisi';
+                  const names = risky.filter((r) => r.severity === 'HIGH').map((r) => r.name).join(', ');
+                  additiveMsg = `ama ${names} maddesi/maddeleri olması nedeniyle Yüksek Risk kategorisine giriyor, tüketimi sağlık açısından tehlikeli olabilir.`;
                 } else if (hasMediumRisky) {
                   bg = 'bg-tertiary/10 border-tertiary/30';
                   circle = 'bg-tertiary';
                   textColor = 'text-tertiary';
-                  icon = 'info';
-                  title = 'Şüpheli İçerik';
-                  message = `${risky.length} adet tartışmalı madde içeriyor — alttaki listeyi inceleyin.`;
-                } else if (hasAnyRisky) {
+                  icon = 'warning';
+                  title = hasAllergen ? 'Orta Risk & Alerjen Tespit Edildi' : 'Orta Risk Kategorisi';
+                  const names = risky.filter((r) => r.severity === 'MEDIUM').map((r) => r.name).join(', ');
+                  additiveMsg = `ama ${names} maddesi/maddeleri olması nedeniyle Orta Risk kategorisine giriyor, özellikle hassas gruplar dikkatli tüketmelidir.`;
+                } else if (hasLowRisky) {
                   bg = 'bg-secondary/10 border-secondary/30';
                   circle = 'bg-secondary';
                   textColor = 'text-secondary';
                   icon = 'info';
-                  title = 'Hassas Gruplara Uyarı';
-                  message = `${risky.length} adet madde belirli gruplar için dikkatli tüketim önerir.`;
+                  title = hasAllergen ? 'Düşük Risk & Alerjen Tespit Edildi' : 'Düşük Risk Kategorisi';
+                  const names = risky.filter((r) => r.severity === 'LOW').map((r) => r.name).join(', ');
+                  additiveMsg = `ama ${names} maddesi/maddeleri olması nedeniyle Düşük Risk kategorisine giriyor, aşırı tüketimde sıkıntı olabilir.`;
+                } else {
+                  if (hasAllergen) {
+                    bg = 'bg-error/10 border-error/30';
+                    circle = 'bg-error';
+                    textColor = 'text-error';
+                    icon = 'warning';
+                    title = 'Alerjen Tespit Edildi';
+                    additiveMsg = `ve bilinen zararlı bir katkı maddesi içermiyor.`;
+                  } else {
+                    additiveMsg = `ve bilinen zararlı/şüpheli hiçbir katkı maddesi içermiyor.`;
+                  }
                 }
 
+                let message = `${allergenMsg} ${additiveMsg}`;
+
                 return (
-                  <div className={`p-8 rounded-2xl flex items-center gap-6 shadow-sm border-2 ${bg}`}>
+                  <div className={`p-8 rounded-2xl flex flex-col sm:flex-row items-center gap-6 shadow-sm border-2 ${bg}`}>
                     <div className={`w-16 h-16 rounded-full flex flex-shrink-0 items-center justify-center text-white ${circle} shadow-lg`}>
                       <span className="material-symbols-outlined text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>{icon}</span>
                     </div>
-                    <div>
+                    <div className="text-center sm:text-left">
                       <h3 className={`text-xl font-headline font-bold ${textColor}`}>{title}</h3>
-                      <p className="text-on-surface-variant font-medium">{message}</p>
+                      <p className="text-on-surface-variant font-medium mt-1 leading-relaxed">{message}</p>
                     </div>
                   </div>
                 );
@@ -805,44 +918,47 @@ export default function Analysis() {
             </div>
           </section>
 
-          {/* Besin Değerleri Kartları */}
-          <section className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
-            <div className="glass-card p-6 rounded-2xl border border-outline-variant/15 text-center shadow-sm">
-              <span className="material-symbols-outlined text-primary text-3xl mb-2">bolt</span>
-              <h4 className="font-bold text-xs text-on-surface-variant uppercase tracking-widest mb-1">Toplam Kalori</h4>
-              <p className="text-2xl font-extrabold text-primary">
-                {Math.round((analysisResult.food.calories * servingSize) / 100)}
-                <span className="text-xs font-bold text-on-surface-variant ml-1">KCAL</span>
-              </p>
-            </div>
-            <div className="glass-card p-6 rounded-2xl border border-outline-variant/15 text-center shadow-sm">
-              <span className="material-symbols-outlined text-secondary text-3xl mb-2">fitness_center</span>
-              <h4 className="font-bold text-xs text-on-surface-variant uppercase tracking-widest mb-1">Protein</h4>
-              <p className="text-2xl font-extrabold text-secondary">
-                {((analysisResult.food.protein * servingSize) / 100).toFixed(1)}
-                <span className="text-xs font-bold text-on-surface-variant ml-1">G</span>
-              </p>
-            </div>
-            <div className="glass-card p-6 rounded-2xl border border-outline-variant/15 text-center shadow-sm">
-              <span className="material-symbols-outlined text-tertiary text-3xl mb-2">bakery_dining</span>
-              <h4 className="font-bold text-xs text-on-surface-variant uppercase tracking-widest mb-1">Karbonhidrat</h4>
-              <p className="text-2xl font-extrabold text-tertiary">
-                {((analysisResult.food.carbohydrates * servingSize) / 100).toFixed(1)}
-                <span className="text-xs font-bold text-on-surface-variant ml-1">G</span>
-              </p>
-            </div>
-            <div className="glass-card p-6 rounded-2xl border border-outline-variant/15 text-center shadow-sm">
-              <span className="material-symbols-outlined text-error text-3xl mb-2">opacity</span>
-              <h4 className="font-bold text-xs text-on-surface-variant uppercase tracking-widest mb-1">Yağ</h4>
-              <p className="text-2xl font-extrabold text-error">
-                {((analysisResult.food.fat * servingSize) / 100).toFixed(1)}
-                <span className="text-xs font-bold text-on-surface-variant ml-1">G</span>
-              </p>
-            </div>
-          </section>
+          {/* Besin Değerleri Kartları (Etiket Taramasında Gizli) */}
+          {analysisResult.source !== 'label_ocr' && (
+            <section className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+              <div className="glass-card p-6 rounded-2xl border border-outline-variant/15 text-center shadow-sm">
+                <span className="material-symbols-outlined text-primary text-3xl mb-2">bolt</span>
+                <h4 className="font-bold text-xs text-on-surface-variant uppercase tracking-widest mb-1">Toplam Kalori</h4>
+                <p className="text-2xl font-extrabold text-primary">
+                  {Math.round((analysisResult.food.calories * servingSize) / 100)}
+                  <span className="text-xs font-bold text-on-surface-variant ml-1">KCAL</span>
+                </p>
+              </div>
+              <div className="glass-card p-6 rounded-2xl border border-outline-variant/15 text-center shadow-sm">
+                <span className="material-symbols-outlined text-secondary text-3xl mb-2">fitness_center</span>
+                <h4 className="font-bold text-xs text-on-surface-variant uppercase tracking-widest mb-1">Protein</h4>
+                <p className="text-2xl font-extrabold text-secondary">
+                  {((analysisResult.food.protein * servingSize) / 100).toFixed(1)}
+                  <span className="text-xs font-bold text-on-surface-variant ml-1">G</span>
+                </p>
+              </div>
+              <div className="glass-card p-6 rounded-2xl border border-outline-variant/15 text-center shadow-sm">
+                <span className="material-symbols-outlined text-tertiary text-3xl mb-2">bakery_dining</span>
+                <h4 className="font-bold text-xs text-on-surface-variant uppercase tracking-widest mb-1">Karbonhidrat</h4>
+                <p className="text-2xl font-extrabold text-tertiary">
+                  {((analysisResult.food.carbohydrates * servingSize) / 100).toFixed(1)}
+                  <span className="text-xs font-bold text-on-surface-variant ml-1">G</span>
+                </p>
+              </div>
+              <div className="glass-card p-6 rounded-2xl border border-outline-variant/15 text-center shadow-sm">
+                <span className="material-symbols-outlined text-error text-3xl mb-2">opacity</span>
+                <h4 className="font-bold text-xs text-on-surface-variant uppercase tracking-widest mb-1">Yağ</h4>
+                <p className="text-2xl font-extrabold text-error">
+                  {((analysisResult.food.fat * servingSize) / 100).toFixed(1)}
+                  <span className="text-xs font-bold text-on-surface-variant ml-1">G</span>
+                </p>
+              </div>
+            </section>
+          )}
 
           {/* ── Sağlık Riski Taraması (Genel Zararlı/Şüpheli Maddeler) ─── */}
-          <section>
+          {analysisResult.source !== 'label_ocr' && (
+            <section>
             <div className="flex items-end justify-between mb-5">
               <div>
                 <h2 className="text-2xl md:text-3xl font-headline font-extrabold text-on-surface">Sağlık Riski Taraması</h2>
@@ -935,10 +1051,12 @@ export default function Analysis() {
                 </div>
               </div>
             )}
-          </section>
+            </section>
+          )}
 
           {/* ── Alt detay kartları (E-kodu tüm liste + Alerjen etiketi) ─── */}
-          <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {analysisResult.source !== 'label_ocr' && (
+            <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-surface-container-lowest/70 p-5 rounded-2xl border border-outline-variant/20 shadow-sm">
               <div className="flex items-center gap-2 mb-3">
                 <span className="material-symbols-outlined text-secondary">science</span>
@@ -970,7 +1088,109 @@ export default function Analysis() {
                 <p className="text-sm text-on-surface-variant italic">Alerjen bilgisi yok.</p>
               )}
             </div>
-          </section>
+            </section>
+          )}
+
+          {/* ── AI Öneri Paneli ── */}
+          {analysisResult.source !== 'label_ocr' && aiRecommendation && (
+            <section className="mt-8">
+              <div className="glass-card p-6 md:p-8 rounded-3xl border-2 border-primary/20 bg-gradient-to-br from-primary/5 via-surface to-secondary/5 shadow-lg relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
+                  <span className="material-symbols-outlined text-9xl text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>psychology</span>
+                </div>
+
+                <div className="relative">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-2xl bg-primary text-white flex items-center justify-center shadow-md">
+                        <span className="material-symbols-outlined text-2xl">auto_awesome</span>
+                      </div>
+                      <div>
+                        <h3 className="font-headline font-extrabold text-xl md:text-2xl text-on-surface tracking-tight">Diyetisyen Yapay Zeka</h3>
+                        <p className="text-sm font-medium text-primary tracking-wide">KİŞİSELLEŞTİRİLMİŞ ÖNERİ</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 bg-surface px-4 py-2 rounded-2xl shadow-sm border border-outline-variant/20">
+                      <div className="flex flex-col items-end">
+                        <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Sağlık Skoru</span>
+                        <span className="text-sm font-extrabold text-on-surface">{aiRecommendation.scoreLabel}</span>
+                      </div>
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center font-extrabold text-white text-lg shadow-inner" style={{
+                        background: aiRecommendation.overallScore >= 8 ? '#10b981' : aiRecommendation.overallScore >= 5 ? '#f59e0b' : '#ef4444'
+                      }}>
+                        {aiRecommendation.overallScore}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant/20 hover:border-primary/30 transition-colors shadow-sm">
+                      <div className="flex items-center gap-2 mb-2 text-primary">
+                        <span className="material-symbols-outlined text-[20px]">calendar_today</span>
+                        <h4 className="font-bold text-sm">Günlük Tüketim Limiti</h4>
+                      </div>
+                      <p className="text-on-surface text-sm font-medium leading-relaxed">{aiRecommendation.dailyLimit}</p>
+                    </div>
+
+                    <div className="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant/20 hover:border-primary/30 transition-colors shadow-sm">
+                      <div className="flex items-center gap-2 mb-2 text-secondary">
+                        <span className="material-symbols-outlined text-[20px]">track_changes</span>
+                        <h4 className="font-bold text-sm">Hedefe Uygunluk</h4>
+                      </div>
+                      <p className="text-on-surface text-sm font-medium leading-relaxed">{aiRecommendation.goalFit}</p>
+                    </div>
+
+                    <div className="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant/20 hover:border-primary/30 transition-colors shadow-sm">
+                      <div className="flex items-center gap-2 mb-2 text-tertiary">
+                        <span className="material-symbols-outlined text-[20px]">pie_chart</span>
+                        <h4 className="font-bold text-sm">Kalori Etkisi</h4>
+                      </div>
+                      <p className="text-on-surface text-sm font-medium leading-relaxed">{aiRecommendation.calorieContext}</p>
+                    </div>
+
+                    <div className="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant/20 hover:border-primary/30 transition-colors shadow-sm">
+                      <div className="flex items-center gap-2 mb-2 text-primary">
+                        <span className="material-symbols-outlined text-[20px]">schedule</span>
+                        <h4 className="font-bold text-sm">Tüketim Zamanı</h4>
+                      </div>
+                      <p className="text-on-surface text-sm font-medium leading-relaxed">{aiRecommendation.bestTimeToEat}</p>
+                    </div>
+
+                    {aiRecommendation.healthySwap && (
+                      <div className="md:col-span-2 bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant/20 hover:border-primary/30 transition-colors shadow-sm">
+                        <div className="flex items-center gap-2 mb-2 text-green-500">
+                          <span className="material-symbols-outlined text-[20px]">swap_horiz</span>
+                          <h4 className="font-bold text-sm">Daha Sağlıklı Alternatif</h4>
+                        </div>
+                        <p className="text-on-surface text-sm font-medium leading-relaxed">{aiRecommendation.healthySwap}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="mt-4 flex items-center justify-center p-4 bg-primary/10 rounded-2xl text-primary font-medium text-sm text-center">
+                    {aiRecommendation.tipEmoji}
+                  </div>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {aiRecommendLoading && (
+            <section className="mt-8 glass-card p-8 rounded-3xl border border-outline-variant/15 animate-pulse">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-12 h-12 rounded-2xl bg-primary/10"></div>
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 bg-on-surface/10 rounded w-1/4"></div>
+                  <div className="h-3 bg-on-surface/5 rounded w-1/3"></div>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="h-24 bg-on-surface/5 rounded-2xl"></div>
+                ))}
+              </div>
+            </section>
+          )}
 
           <section>
             <h2 className="text-3xl font-headline font-extrabold text-primary mb-10 text-center md:text-left">İçindekiler Listesi</h2>
@@ -1050,10 +1270,10 @@ export default function Analysis() {
               {historyFilter === 'pending'
                 ? 'Onay bekleyen tarama yok.'
                 : historyFilter === 'consumed'
-                ? 'Henüz tüketim onayı verdiğin tarama yok.'
-                : historyFilter === 'dismissed'
-                ? '"Tüketmedim" olarak işaretlenmiş ürün yok.'
-                : 'Henüz bir ürün taramadın.'}
+                  ? 'Henüz tüketim onayı verdiğin tarama yok.'
+                  : historyFilter === 'dismissed'
+                    ? '"Tüketmedim" olarak işaretlenmiş ürün yok.'
+                    : 'Henüz bir ürün taramadın.'}
             </p>
             <p className="text-xs text-on-surface-variant/70 mt-1">
               Yukarıdan barkod gir veya kamera ile tara — taradığın her ürün burada listelenir.
@@ -1073,26 +1293,24 @@ export default function Analysis() {
               return (
                 <div
                   key={scan._id}
-                  className={`p-4 rounded-2xl border-2 transition-all shadow-sm ${
-                    isDismissed
+                  className={`p-4 rounded-2xl border-2 transition-all shadow-sm ${isDismissed
                       ? 'bg-surface-container/40 border-outline-variant/30 opacity-75'
                       : hasAllergen
-                      ? 'bg-error/5 border-error/30'
-                      : hasHighRisk
-                      ? 'bg-tertiary/10 border-tertiary/30'
-                      : isConsumed
-                      ? 'bg-primary/10 border-primary/30'
-                      : 'bg-surface-container-lowest/70 border-outline-variant/30 hover:border-primary/40'
-                  }`}
+                        ? 'bg-error/5 border-error/30'
+                        : hasHighRisk
+                          ? 'bg-tertiary/10 border-tertiary/30'
+                          : isConsumed
+                            ? 'bg-primary/10 border-primary/30'
+                            : 'bg-surface-container-lowest/70 border-outline-variant/30 hover:border-primary/40'
+                    }`}
                 >
                   <div className="flex items-start gap-3">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                      isDismissed ? 'bg-on-surface-variant/15 text-on-surface-variant' :
-                      hasAllergen ? 'bg-error/15 text-error' :
-                      hasHighRisk ? 'bg-tertiary/15 text-tertiary' :
-                      isConsumed ? 'bg-primary/15 text-primary' :
-                      'bg-primary/10 text-primary'
-                    }`}>
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${isDismissed ? 'bg-on-surface-variant/15 text-on-surface-variant' :
+                        hasAllergen ? 'bg-error/15 text-error' :
+                          hasHighRisk ? 'bg-tertiary/15 text-tertiary' :
+                            isConsumed ? 'bg-primary/15 text-primary' :
+                              'bg-primary/10 text-primary'
+                      }`}>
                       <span className="material-symbols-outlined">
                         {isDismissed ? 'do_not_disturb_on' : 'inventory_2'}
                       </span>
@@ -1238,8 +1456,17 @@ export default function Analysis() {
         open={ocrOpen}
         onClose={() => setOcrOpen(false)}
         onText={(text) => {
-          setOcrText(text);
+          setOcrText((prev) => prev ? prev + '\n' + text : text);
           setOcrOpen(false);
+        }}
+      />
+
+      <OCRScanner
+        open={labelOcrOpen}
+        onClose={() => setLabelOcrOpen(false)}
+        onText={(text) => {
+          setLabelText((prev) => prev ? prev + '\n' + text : text);
+          setLabelOcrOpen(false);
         }}
       />
     </main>
