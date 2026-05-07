@@ -113,7 +113,9 @@ export default function OCRScanner({ open, onClose, onText }: Props) {
       }
 
       setResultText(cleaned);
-      setStage('done');
+      // 'done' stage'ine geçmeden doğrudan sonuçları gönder ve modalı kapat
+      onText(cleaned);
+      onClose();
     } catch (e: any) {
       console.error('OCR failed', e);
       setError('OCR sırasında hata: ' + (e.message || 'Bilinmeyen hata'));
@@ -237,8 +239,8 @@ export default function OCRScanner({ open, onClose, onText }: Props) {
                     onClick={runOcr}
                     className="flex-1 px-6 py-3.5 hero-gradient text-white font-bold rounded-xl flex items-center justify-center gap-2 shadow"
                   >
-                    <span className="material-symbols-outlined">auto_awesome</span>
-                    Metni Çıkar
+                    <span className="material-symbols-outlined">science</span>
+                    Analiz Et
                   </button>
                   <button
                     onClick={reset}
@@ -251,36 +253,7 @@ export default function OCRScanner({ open, onClose, onText }: Props) {
             </div>
           )}
 
-          {/* Sonuç */}
-          {stage === 'done' && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-                  <p className="font-bold text-on-surface">Metin çıkarıldı</p>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-primary/15 text-primary font-bold">
-                    {resultText.length} karakter
-                  </span>
-                </div>
-                <button
-                  onClick={reset}
-                  className="text-xs font-bold text-on-surface-variant hover:text-on-surface flex items-center gap-1"
-                >
-                  <span className="material-symbols-outlined text-sm">refresh</span>
-                  Yeniden çek
-                </button>
-              </div>
-
-              <textarea
-                value={resultText}
-                onChange={(e) => setResultText(e.target.value)}
-                className="w-full p-4 rounded-xl border-none ring-1 ring-outline-variant/30 focus:ring-2 focus:ring-primary outline-none min-h-[180px] bg-surface-container-lowest text-on-surface font-medium text-sm leading-relaxed"
-              />
-              <p className="text-xs text-on-surface-variant">
-                Metni kontrol edin — yanlış okunan kısımları düzeltebilirsiniz. Onayladığınızda AI etiketi analiz eder.
-              </p>
-            </div>
-          )}
+          {/* Sonuç ekranı kullanıcı isteğiyle tamamen kaldırıldı (done stage skip) */}
 
           {/* Hata */}
           {error && (

@@ -164,6 +164,35 @@ export default function Analysis() {
     }
   };
 
+  const handleOcrResult = async (text: string, isLabelOnly: boolean = false) => {
+    if (isLabelOnly) {
+      setLoading(true);
+      setError(null);
+      setAnalysisResult(null);
+      setAiRecommendation(null);
+      try {
+        const res = await analyzeLabelOnly(text, servingSize);
+        if (res.status === 'success') {
+          setAnalysisResult(res.data);
+          setScanId(res.data?.scanId || null);
+          setConsumed(false);
+          loadHistory();
+          if (res.data?.food?._id) {
+            fetchAIRecommendation(res.data.food._id, servingSize);
+          }
+        } else {
+          setError(res.message || 'Etiket analizi başarısız oldu.');
+        }
+      } catch (err: any) {
+        setError(err.message || 'Analiz sırasında hata oluştu.');
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      setOcrText(text);
+    }
+  };
+
   // AI öneri panelini doldur
   const fetchAIRecommendation = async (foodId: string, serving: number) => {
     setAiRecommendLoading(true);
@@ -474,33 +503,34 @@ export default function Analysis() {
             </div>
           )}
 
-          {/* Barkodsuz Etiket Tarama */}
+          {/* Barkodsuz Etiket Tarama - Sadeleştirilmiş Tasarım */}
           {mode === 'label' && (
-            <div className="space-y-4 max-w-2xl mx-auto">
-              <div className="mb-4 p-4 rounded-xl bg-surface-container-lowest border-2 border-dashed border-secondary/30 flex flex-col sm:flex-row items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-secondary/15 flex items-center justify-center flex-shrink-0">
-                  <span className="material-symbols-outlined text-secondary text-2xl">photo_camera</span>
+            <div className="space-y-6 max-w-2xl mx-auto py-8">
+              <div className="text-center space-y-2">
+                <div className="w-20 h-20 rounded-3xl bg-secondary/10 flex items-center justify-center mx-auto mb-4 shadow-inner ring-1 ring-secondary/20">
+                  <span className="material-symbols-outlined text-secondary text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>document_scanner</span>
                 </div>
-                <div className="flex-1 text-center sm:text-left">
-                  <p className="font-bold text-on-surface text-sm">Etiketi fotoğraflayın</p>
-                  <p className="text-xs text-on-surface-variant">Yazmak yerine fotoğraf çekin — metin otomatik çıkarılır.</p>
-                </div>
-                <button
-                  onClick={() => setLabelOcrOpen(true)}
-                  className="px-5 py-2.5 bg-secondary text-white text-sm font-bold rounded-xl hover:opacity-90 transition flex items-center gap-2 shadow-sm"
-                >
-                  <span className="material-symbols-outlined text-base">document_scanner</span>
-                  Fotoğraftan Oku
-                </button>
+                <h3 className="text-xl font-headline font-bold text-on-surface">İçindekiler Etiketini Tara</h3>
+                <p className="text-sm text-on-surface-variant max-w-sm mx-auto">
+                  Ürünün arkasındaki içerik listesini fotoğraflayın. Yapay zeka metni okuyacak ve saniyeler içinde analiz edecek.
+                </p>
               </div>
 
-              <div className="relative">
-                <textarea
-                  value={labelText}
-                  onChange={(e) => setLabelText(e.target.value)}
-                  placeholder="...veya içindekiler listesini buraya yapıştırın. Örn: Buğday unu, Şeker, Bitkisel Yağ..."
-                  className="w-full p-4 rounded-xl border-none ring-1 ring-outline-variant/30 focus:ring-2 focus:ring-primary outline-none min-h-[120px] bg-surface-container-lowest text-on-surface font-medium"
-                />
+              <div className="flex flex-col items-center gap-4">
+                <button
+                  onClick={() => setLabelOcrOpen(true)}
+                  disabled={loading}
+                  className="w-full sm:w-auto px-10 py-5 bg-secondary text-white font-extrabold rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 shadow-xl shadow-secondary/20"
+                >
+                  <span className="material-symbols-outlined text-2xl">photo_camera</span>
+                  Fotoğraf Çek / Yükle
+                </button>
+                
+                <div className="flex items-center gap-3 w-full opacity-30">
+                  <div className="h-px bg-outline-variant flex-1"></div>
+                  <span className="text-[10px] font-bold uppercase tracking-widest">HIZLI ANALİZ</span>
+                  <div className="h-px bg-outline-variant flex-1"></div>
+                </div>
               </div>
             </div>
           )}
@@ -540,8 +570,8 @@ export default function Analysis() {
             </div>
           )}
 
-          {/* Analiz butonu (barkod ve etiket modunda) */}
-          {(mode === 'barcode' || mode === 'label') && !needsOcr && (
+          {/* Analiz butonu (Sadece barkod modunda kaldı, etiket modu otomatikleşti) */}
+          {mode === 'barcode' && !needsOcr && (
             <div className="mt-6 max-w-2xl mx-auto">
               <button
                 onClick={mode === 'label' ? handleLabelAnalyze : handleScan}
@@ -1464,10 +1494,7 @@ export default function Analysis() {
       <OCRScanner
         open={labelOcrOpen}
         onClose={() => setLabelOcrOpen(false)}
-        onText={(text) => {
-          setLabelText((prev) => prev ? prev + '\n' + text : text);
-          setLabelOcrOpen(false);
-        }}
+        onText={(text) => handleOcrResult(text, true)}
       />
     </main>
   );
