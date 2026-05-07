@@ -102,7 +102,8 @@ export default function Dashboard() {
   // Sadece "Tükettim" onaylı kayıtlar günlük kalori/makro toplamına dahil edilir.
   // Diğerleri "geçmiş tarama" olarak listede görünür ama kalori sayacına yazmaz.
   const consumedToday = todayHistory.filter(h => h.consumed === true);
-  const pendingToday = todayHistory.filter(h => h.consumed !== true && h.dismissed !== true);
+  // OCR etiket taramaları ('L-' ile başlayan sanal barkodlar) onay beklemez, çünkü onlarda kalori hesabı yapılmıyor.
+  const pendingToday = todayHistory.filter(h => h.consumed !== true && h.dismissed !== true && !h.barcode?.startsWith('L-'));
 
   const totals = consumedToday.reduce((acc, h) => {
     const food = h.foodId;
@@ -180,11 +181,10 @@ export default function Dashboard() {
           />
           <button
             onClick={() => setShowWeeklyReport(r => !r)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold transition-all border ${
-              showWeeklyReport
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold transition-all border ${showWeeklyReport
                 ? 'bg-primary text-white border-primary shadow-md'
                 : 'bg-surface-container-high text-on-surface-variant border-outline-variant/30 hover:border-primary/40 hover:text-primary'
-            }`}
+              }`}
           >
             <span className="material-symbols-outlined text-base">insights</span>
             Haftalık Rapor
@@ -435,9 +435,8 @@ export default function Dashboard() {
                   className="p-4 rounded-2xl border bg-surface-container-lowest/70 border-primary/10 hover:border-primary/30 transition-all flex items-center justify-between gap-3 shadow-sm"
                 >
                   <div className="flex items-center gap-3 min-w-0 flex-1">
-                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                      isHighRisk ? 'bg-error/10 text-error' : 'bg-primary/10 text-primary'
-                    }`}>
+                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${isHighRisk ? 'bg-error/10 text-error' : 'bg-primary/10 text-primary'
+                      }`}>
                       <span className="material-symbols-outlined text-xl">
                         {scan.foodId?.isGeneric ? 'restaurant' : 'inventory_2'}
                       </span>
@@ -503,8 +502,8 @@ function SummaryPill({
 }: { icon: string; label: string; value: string; tone: 'primary' | 'secondary' | 'tertiary' }) {
   const toneClass =
     tone === 'primary' ? 'bg-primary/10 text-primary'
-    : tone === 'secondary' ? 'bg-secondary/10 text-secondary'
-    : 'bg-tertiary/10 text-tertiary';
+      : tone === 'secondary' ? 'bg-secondary/10 text-secondary'
+        : 'bg-tertiary/10 text-tertiary';
 
   return (
     <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${toneClass} border border-current/10`}>
@@ -524,18 +523,18 @@ function HealthScoreSummary({ data }: { data: any }) {
 
   const scoreColor = (s: number | null) =>
     s === null ? 'text-on-surface-variant'
-    : s >= 80 ? 'text-primary'
-    : s >= 60 ? 'text-primary'
-    : s >= 40 ? 'text-tertiary'
-    : 'text-error';
+      : s >= 80 ? 'text-primary'
+        : s >= 60 ? 'text-primary'
+          : s >= 40 ? 'text-tertiary'
+            : 'text-error';
 
   const scoreLabel = (s: number | null) =>
     s === null ? 'Veri Yok'
-    : s >= 80 ? 'Mükemmel'
-    : s >= 60 ? 'İyi'
-    : s >= 40 ? 'Orta'
-    : s >= 20 ? 'Dikkat'
-    : 'Düşük';
+      : s >= 80 ? 'Mükemmel'
+        : s >= 60 ? 'İyi'
+          : s >= 40 ? 'Orta'
+            : s >= 20 ? 'Dikkat'
+              : 'Düşük';
 
   const trendDiff = typeof todayScore === 'number' && typeof weeklyAvg === 'number'
     ? todayScore - weeklyAvg
@@ -592,11 +591,10 @@ function HealthScoreSummary({ data }: { data: any }) {
                 <div key={d.date} className="flex-1 flex flex-col items-center gap-1.5">
                   <div className="flex-1 w-full flex items-end" title={`${d.date}: ${d.score ?? '—'}`}>
                     <div
-                      className={`w-full rounded-md transition-all duration-700 ${
-                        d.score === null ? 'bg-surface-container-high'
-                        : isToday ? 'bg-primary'
-                        : 'bg-primary/40'
-                      }`}
+                      className={`w-full rounded-md transition-all duration-700 ${d.score === null ? 'bg-surface-container-high'
+                          : isToday ? 'bg-primary'
+                            : 'bg-primary/40'
+                        }`}
                       style={{ height: `${Math.max(h, 8)}%` }}
                     />
                   </div>

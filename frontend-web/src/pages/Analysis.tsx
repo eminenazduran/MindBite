@@ -310,52 +310,54 @@ export default function Analysis() {
     <main className="pt-24 px-6 md:px-8 max-w-7xl mx-auto space-y-8 pb-24">
       {/* ─── Hero Header ─────────────────────────────────────── */}
       {!analysisResult && (
-        <section className="relative overflow-hidden rounded-3xl glass-card p-8 md:p-12 border border-primary/10">
-          <div className="absolute -top-20 -right-16 w-72 h-72 bg-primary/10 rounded-full blur-3xl"></div>
-          <div className="absolute -bottom-24 -left-16 w-72 h-72 bg-secondary/10 rounded-full blur-3xl"></div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch">
+          {/* ─── Hero Header ─────────────────────────────────────── */}
+          <section className="lg:col-span-5 relative overflow-hidden rounded-3xl glass-card p-8 md:p-10 border border-primary/10 flex flex-col justify-center bg-gradient-to-br from-surface-container-lowest to-surface-container/50">
+            <div className="absolute -top-20 -right-16 w-64 h-64 bg-primary/10 rounded-full blur-3xl"></div>
+            <div className="absolute -bottom-24 -left-16 w-64 h-64 bg-secondary/10 rounded-full blur-3xl"></div>
 
-          <div className="relative flex flex-col md:flex-row md:items-center gap-6">
-            <div className="flex-1">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 mb-4">
-                <span className="material-symbols-outlined text-primary text-base">auto_awesome</span>
-                <span className="text-[11px] font-bold text-primary tracking-widest uppercase">Yapay Zeka Destekli</span>
-              </div>
-              <h1 className="text-3xl md:text-5xl font-headline font-extrabold text-on-surface leading-tight">
-                Gıda Etiketi <span className="text-primary">Analizi</span>
-              </h1>
-              <p className="text-on-surface-variant mt-3 md:text-lg max-w-xl">
-                Barkod okut, ürün ara veya içindekiler listesini yapıştır. Alerji profilin ve makrolarına göre risk raporu al.
-              </p>
-            </div>
-
-            {/* Mini özellik rozetleri */}
-            <div className="flex flex-col gap-2 md:min-w-[240px]">
-              {[
-                { icon: 'health_and_safety', label: 'Alerjen ve E-kod taraması' },
-                { icon: 'nutrition', label: 'Porsiyona göre makro' },
-                { icon: 'flash_on', label: 'Saniyeler içinde rapor' }
-              ].map((f) => (
-                <div key={f.label} className="flex items-center gap-3 px-3 py-2 rounded-xl bg-surface-container-lowest/60 border border-outline-variant/20">
-                  <span className="material-symbols-outlined text-primary text-xl">{f.icon}</span>
-                  <span className="text-sm font-semibold text-on-surface">{f.label}</span>
+            <div className="relative flex flex-col gap-6">
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 mb-5 shadow-sm">
+                  <span className="material-symbols-outlined text-primary text-sm">auto_awesome</span>
+                  <span className="text-[10px] font-extrabold text-primary tracking-widest uppercase">Yapay Zeka Destekli</span>
                 </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+                <h1 className="text-4xl lg:text-5xl font-headline font-extrabold text-on-surface leading-tight">
+                  Gıda Etiketi <br/><span className="text-primary">Analizi</span>
+                </h1>
+                <p className="text-on-surface-variant mt-4 text-sm md:text-base leading-relaxed">
+                  Barkod okut, ürün ara veya içindekiler listesini yapıştır. Alerji profilin ve makrolarına göre kişiselleştirilmiş risk raporunu saniyeler içinde al.
+                </p>
+              </div>
 
-      {/* ─── Input Kartı ─────────────────────────────────────── */}
-      {!analysisResult && (
-        <section className="glass-card p-6 md:p-8 rounded-3xl border border-outline-variant/20 shadow-sm">
+              {/* Mini özellik rozetleri */}
+              <div className="flex flex-col gap-2.5 mt-2">
+                {[
+                  { icon: 'health_and_safety', label: 'Alerjen ve E-kod Taraması' },
+                  { icon: 'nutrition', label: 'Porsiyona Göre Makro Hesabı' },
+                  { icon: 'flash_on', label: 'Anında Risk Raporu' }
+                ].map((f) => (
+                  <div key={f.label} className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-surface/50 backdrop-blur-md border border-outline-variant/20 shadow-sm transition-all hover:bg-surface hover:border-primary/30">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <span className="material-symbols-outlined text-primary text-[18px]">{f.icon}</span>
+                    </div>
+                    <span className="text-sm font-bold text-on-surface">{f.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* ─── Input Kartı ─────────────────────────────────────── */}
+          <section className="lg:col-span-7 glass-card p-6 md:p-10 rounded-3xl border border-outline-variant/20 shadow-lg bg-surface">
           {/* Mod seçici (segmented control) */}
           <div className="flex items-center justify-center mb-6">
             <div className="inline-flex bg-surface-container-high rounded-2xl p-1.5 shadow-inner">
               <button
                 onClick={() => { setMode('barcode'); setError(null); setSearchResults([]); }}
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${mode === 'barcode'
-                    ? 'bg-surface-container-lowest text-primary shadow-md'
-                    : 'text-on-surface-variant hover:text-on-surface'
+                  ? 'bg-surface-container-lowest text-primary shadow-md'
+                  : 'text-on-surface-variant hover:text-on-surface'
                   }`}
               >
                 <span className="material-symbols-outlined text-lg">barcode_scanner</span>
@@ -364,8 +366,8 @@ export default function Analysis() {
               <button
                 onClick={() => { setMode('search'); setError(null); setNeedsOcr(false); }}
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${mode === 'search'
-                    ? 'bg-surface-container-lowest text-primary shadow-md'
-                    : 'text-on-surface-variant hover:text-on-surface'
+                  ? 'bg-surface-container-lowest text-primary shadow-md'
+                  : 'text-on-surface-variant hover:text-on-surface'
                   }`}
               >
                 <span className="material-symbols-outlined text-lg">search</span>
@@ -374,8 +376,8 @@ export default function Analysis() {
               <button
                 onClick={() => { setMode('label'); setError(null); setNeedsOcr(false); }}
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${mode === 'label'
-                    ? 'bg-surface-container-lowest text-primary shadow-md'
-                    : 'text-on-surface-variant hover:text-on-surface'
+                  ? 'bg-surface-container-lowest text-primary shadow-md'
+                  : 'text-on-surface-variant hover:text-on-surface'
                   }`}
               >
                 <span className="material-symbols-outlined text-lg">document_scanner</span>
@@ -525,7 +527,7 @@ export default function Analysis() {
                   <span className="material-symbols-outlined text-2xl">photo_camera</span>
                   Fotoğraf Çek / Yükle
                 </button>
-                
+
                 <div className="flex items-center gap-3 w-full opacity-30">
                   <div className="h-px bg-outline-variant flex-1"></div>
                   <span className="text-[10px] font-bold uppercase tracking-widest">HIZLI ANALİZ</span>
@@ -559,8 +561,8 @@ export default function Analysis() {
                     key={g}
                     onClick={() => setServingSize(g)}
                     className={`flex-1 min-w-[60px] px-3 py-2 rounded-xl text-sm font-bold transition-all ${servingSize === g
-                        ? 'bg-primary text-white shadow-md'
-                        : 'bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest'
+                      ? 'bg-primary text-white shadow-md'
+                      : 'bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest'
                       }`}
                   >
                     {g}g
@@ -680,47 +682,10 @@ export default function Analysis() {
             </div>
           )}
         </section>
+        </div>
       )}
 
-      {/* ─── Nasıl Çalışır (boş state) ─────────────── */}
-      {!analysisResult && !loading && !needsOcr && (
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[
-            {
-              step: '01',
-              icon: 'barcode_scanner',
-              title: 'Ürünü Tanımla',
-              desc: 'Barkod yaz ya da ürün adıyla ara. Her iki yöntem de Open Food Facts + yerel veritabanına bağlanır.'
-            },
-            {
-              step: '02',
-              icon: 'psychology',
-              title: 'AI Analiz Eder',
-              desc: 'Alerjen profiline göre risk seviyesi, E-kod, ve porsiyona göre kalori/makro hesaplanır.'
-            },
-            {
-              step: '03',
-              icon: 'insights',
-              title: 'Raporu Al',
-              desc: 'Güvenlik durumu, besin değerleri ve içindekiler listesi tek ekranda — kaydın geçmişine işler.'
-            }
-          ].map((s) => (
-            <div key={s.step} className="relative glass-card p-6 rounded-2xl border border-outline-variant/15 hover:border-primary/30 transition group overflow-hidden">
-              <div className="absolute -top-6 -right-6 w-24 h-24 bg-primary/5 rounded-full group-hover:bg-primary/10 transition-all"></div>
-              <div className="relative flex items-start gap-4">
-                <div className="w-12 h-12 rounded-2xl hero-gradient flex items-center justify-center flex-shrink-0 shadow-md">
-                  <span className="material-symbols-outlined text-white">{s.icon}</span>
-                </div>
-                <div>
-                  <span className="text-[10px] font-extrabold text-primary/60 tracking-widest">{s.step}</span>
-                  <h3 className="font-bold text-on-surface mt-1">{s.title}</h3>
-                  <p className="text-sm text-on-surface-variant mt-1.5 leading-relaxed">{s.desc}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </section>
-      )}
+
 
       {/* ─── Yükleme skeleton ─── */}
       {loading && !analysisResult && (
@@ -746,8 +711,8 @@ export default function Analysis() {
           {/* ── Tüketim Onayı Banner'ı (Etiket Taramasında Gizli) ── */}
           {analysisResult.source !== 'label_ocr' && (
             <section className={`rounded-3xl p-5 md:p-6 border-2 shadow-sm ${consumed
-                ? 'bg-primary/10 border-primary/30'
-                : 'bg-gradient-to-br from-primary/5 via-secondary/5 to-tertiary/5 border-primary/20'
+              ? 'bg-primary/10 border-primary/30'
+              : 'bg-gradient-to-br from-primary/5 via-secondary/5 to-tertiary/5 border-primary/20'
               }`}>
               {consumed ? (
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
@@ -847,105 +812,118 @@ export default function Analysis() {
             </section>
           )}
 
-          <section className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-            <div className="lg:col-span-5 relative group">
-              <div className="absolute -inset-4 bg-primary/5 rounded-xl blur-2xl group-hover:bg-primary/10 transition-all"></div>
-              <div className="relative w-full aspect-square bg-surface-container-low rounded-xl shadow-2xl flex items-center justify-center">
-                <div className="text-center">
-                  <span className="material-symbols-outlined text-8xl text-primary/30">fastfood</span>
-                  <p className="text-on-surface-variant text-sm mt-2 font-medium">{analysisResult.food.barcode}</p>
-                </div>
-              </div>
-            </div>
-            <div className="lg:col-span-7 space-y-8">
-              <div>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-secondary-container text-on-secondary-container font-headline font-bold text-sm tracking-wide">
-                    AKILLI ANALİZ SONUCU
-                  </span>
-                  {analysisResult.source !== 'label_ocr' && (
-                    <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-primary-fixed text-on-primary-fixed font-headline font-bold text-sm tracking-wide">
-                      {servingSize} GR İÇİN
+          <section className="flex flex-col gap-6">
+            {/* Ürün Bilgi Kartı */}
+            <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-3xl p-6 md:p-10 shadow-sm relative overflow-hidden">
+              {/* Arka plan süslemesi */}
+              <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary/5 rounded-full blur-3xl"></div>
+              
+              <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div>
+                  <div className="flex flex-wrap items-center gap-2 mb-4">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary font-bold text-xs tracking-wider uppercase">
+                      <span className="material-symbols-outlined text-[14px]">auto_awesome</span>
+                      Akıllı Analiz Sonucu
                     </span>
-                  )}
-                </div>
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-headline font-extrabold text-primary tracking-tight leading-tight">
-                  {analysisResult.food.productName}
-                </h1>
-              </div>
-              {(() => {
-                const ar = analysisResult.analysisResult || {};
-                const matched: string[] = ar.matchedAllergens || [];
-                const risky: any[] = ar.riskyAdditives || [];
-                const hasAllergen = matched.length > 0;
-                const hasHighRisky = risky.some((r) => r.severity === 'HIGH');
-                const hasMediumRisky = risky.some((r) => r.severity === 'MEDIUM');
-                const hasLowRisky = risky.some((r) => r.severity === 'LOW');
-
-                let bg = 'bg-primary/10 border-primary/20';
-                let circle = 'bg-primary';
-                let textColor = 'text-primary';
-                let icon = 'check_circle';
-                let title = 'Senin İçin Güvenli';
-
-                let allergenMsg = hasAllergen 
-                  ? `Alerjenler açısından RİSKLİ (Profilindeki ${matched.join(', ')} bulunuyor)` 
-                  : `Alerjenler açısından bir sıkıntı yok`;
-
-                let additiveMsg = "";
-
-                if (hasHighRisky) {
-                  bg = 'bg-error/10 border-error/30';
-                  circle = 'bg-error';
-                  textColor = 'text-error';
-                  icon = 'gpp_maybe';
-                  title = hasAllergen ? 'Yüksek Risk & Alerjen Tespit Edildi' : 'Yüksek Risk Kategorisi';
-                  const names = risky.filter((r) => r.severity === 'HIGH').map((r) => r.name).join(', ');
-                  additiveMsg = `ama ${names} maddesi/maddeleri olması nedeniyle Yüksek Risk kategorisine giriyor, tüketimi sağlık açısından tehlikeli olabilir.`;
-                } else if (hasMediumRisky) {
-                  bg = 'bg-tertiary/10 border-tertiary/30';
-                  circle = 'bg-tertiary';
-                  textColor = 'text-tertiary';
-                  icon = 'warning';
-                  title = hasAllergen ? 'Orta Risk & Alerjen Tespit Edildi' : 'Orta Risk Kategorisi';
-                  const names = risky.filter((r) => r.severity === 'MEDIUM').map((r) => r.name).join(', ');
-                  additiveMsg = `ama ${names} maddesi/maddeleri olması nedeniyle Orta Risk kategorisine giriyor, özellikle hassas gruplar dikkatli tüketmelidir.`;
-                } else if (hasLowRisky) {
-                  bg = 'bg-secondary/10 border-secondary/30';
-                  circle = 'bg-secondary';
-                  textColor = 'text-secondary';
-                  icon = 'info';
-                  title = hasAllergen ? 'Düşük Risk & Alerjen Tespit Edildi' : 'Düşük Risk Kategorisi';
-                  const names = risky.filter((r) => r.severity === 'LOW').map((r) => r.name).join(', ');
-                  additiveMsg = `ama ${names} maddesi/maddeleri olması nedeniyle Düşük Risk kategorisine giriyor, aşırı tüketimde sıkıntı olabilir.`;
-                } else {
-                  if (hasAllergen) {
-                    bg = 'bg-error/10 border-error/30';
-                    circle = 'bg-error';
-                    textColor = 'text-error';
-                    icon = 'warning';
-                    title = 'Alerjen Tespit Edildi';
-                    additiveMsg = `ve bilinen zararlı bir katkı maddesi içermiyor.`;
-                  } else {
-                    additiveMsg = `ve bilinen zararlı/şüpheli hiçbir katkı maddesi içermiyor.`;
-                  }
-                }
-
-                let message = `${allergenMsg} ${additiveMsg}`;
-
-                return (
-                  <div className={`p-8 rounded-2xl flex flex-col sm:flex-row items-center gap-6 shadow-sm border-2 ${bg}`}>
-                    <div className={`w-16 h-16 rounded-full flex flex-shrink-0 items-center justify-center text-white ${circle} shadow-lg`}>
-                      <span className="material-symbols-outlined text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>{icon}</span>
-                    </div>
-                    <div className="text-center sm:text-left">
-                      <h3 className={`text-xl font-headline font-bold ${textColor}`}>{title}</h3>
-                      <p className="text-on-surface-variant font-medium mt-1 leading-relaxed">{message}</p>
-                    </div>
+                    {analysisResult.source !== 'label_ocr' && (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-high text-on-surface-variant font-bold text-xs tracking-wider uppercase">
+                        <span className="material-symbols-outlined text-[14px]">scale</span>
+                        {servingSize} GR
+                      </span>
+                    )}
+                    {analysisResult.food.barcode && (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded border border-outline-variant/30 text-on-surface-variant font-mono text-[10px] tracking-widest">
+                        <span className="material-symbols-outlined text-[12px]">barcode</span>
+                        {analysisResult.food.barcode}
+                      </span>
+                    )}
                   </div>
-                );
-              })()}
+                  <h1 className="text-3xl md:text-5xl font-headline font-black text-on-surface tracking-tight leading-tight">
+                    {analysisResult.food.productName}
+                  </h1>
+                </div>
+                
+                {/* Tüketim aksiyonu - Ekranda masaüstünde sağda görünmesi için buraya bir kopyasını/alternatifini koyabiliriz ama mevcut buton zaten var, sadece süsleme kalsın */}
+                <div className="hidden md:flex items-center justify-center w-24 h-24 rounded-2xl bg-surface-container border border-outline-variant/20 shadow-inner">
+                  <span className="material-symbols-outlined text-5xl text-primary/40">restaurant</span>
+                </div>
+              </div>
             </div>
+
+            {/* Risk Özet Kartı */}
+            {(() => {
+              const ar = analysisResult.analysisResult || {};
+              const matched: string[] = ar.matchedAllergens || [];
+              const risky: any[] = ar.riskyAdditives || [];
+              const hasAllergen = matched.length > 0;
+              const hasHighRisky = risky.some((r) => r.severity === 'HIGH');
+              const hasMediumRisky = risky.some((r) => r.severity === 'MEDIUM');
+              const hasLowRisky = risky.some((r) => r.severity === 'LOW');
+
+              let bg = 'bg-primary/5 border-primary/20';
+              let iconBg = 'bg-primary text-white';
+              let titleColor = 'text-primary';
+              let icon = 'check_circle';
+              let title = 'Senin İçin Güvenli';
+
+              let allergenMsg = hasAllergen
+                ? `Alerjen RİSKİ: Profilindeki ${matched.join(', ')} bulundu.`
+                : `Alerjen riski bulunmuyor.`;
+
+              let additiveMsg = "";
+
+              if (hasHighRisky) {
+                bg = 'bg-error/5 border-error/20';
+                iconBg = 'bg-error text-white';
+                titleColor = 'text-error';
+                icon = 'gpp_maybe';
+                title = hasAllergen ? 'Yüksek Risk & Alerjen' : 'Yüksek Riskli Ürün';
+                const names = risky.filter((r) => r.severity === 'HIGH').map((r) => r.name).join(', ');
+                additiveMsg = `${names} nedeniyle Yüksek Risk. Sağlık açısından tehlikeli olabilir.`;
+              } else if (hasMediumRisky) {
+                bg = 'bg-tertiary/5 border-tertiary/20';
+                iconBg = 'bg-tertiary text-white';
+                titleColor = 'text-tertiary';
+                icon = 'warning';
+                title = hasAllergen ? 'Orta Risk & Alerjen' : 'Dikkatli Tüketilmeli';
+                const names = risky.filter((r) => r.severity === 'MEDIUM').map((r) => r.name).join(', ');
+                additiveMsg = `${names} nedeniyle Orta Risk. Sınırlı tüketim önerilir.`;
+              } else if (hasLowRisky) {
+                bg = 'bg-secondary/5 border-secondary/20';
+                iconBg = 'bg-secondary text-white';
+                titleColor = 'text-secondary';
+                icon = 'info';
+                title = hasAllergen ? 'Düşük Risk & Alerjen' : 'Düşük Riskli Ürün';
+                const names = risky.filter((r) => r.severity === 'LOW').map((r) => r.name).join(', ');
+                additiveMsg = `${names} nedeniyle Düşük Risk. Aşırı tüketimde dikkatli olunmalı.`;
+              } else {
+                if (hasAllergen) {
+                  bg = 'bg-error/5 border-error/20';
+                  iconBg = 'bg-error text-white';
+                  titleColor = 'text-error';
+                  icon = 'warning';
+                  title = 'Alerjen Tespit Edildi';
+                  additiveMsg = `Bilinen zararlı katkı maddesi içermiyor.`;
+                } else {
+                  additiveMsg = `Zararlı veya şüpheli katkı maddesi tespit edilmedi.`;
+                }
+              }
+
+              return (
+                <div className={`p-6 md:p-8 rounded-3xl border-2 shadow-sm flex flex-col sm:flex-row items-center gap-6 ${bg}`}>
+                  <div className={`w-16 h-16 rounded-2xl flex-shrink-0 flex items-center justify-center shadow-md ${iconBg}`}>
+                    <span className="material-symbols-outlined text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>{icon}</span>
+                  </div>
+                  <div className="text-center sm:text-left flex-1">
+                    <h3 className={`text-xl md:text-2xl font-headline font-black mb-2 ${titleColor}`}>{title}</h3>
+                    <p className="text-on-surface-variant font-medium text-sm md:text-base leading-relaxed">
+                      <span className={hasAllergen ? 'font-bold text-error' : ''}>{allergenMsg}</span>{' '}
+                      {additiveMsg}
+                    </p>
+                  </div>
+                </div>
+              );
+            })()}
           </section>
 
           {/* Besin Değerleri Kartları (Etiket Taramasında Gizli) */}
@@ -989,135 +967,135 @@ export default function Analysis() {
           {/* ── Sağlık Riski Taraması (Genel Zararlı/Şüpheli Maddeler) ─── */}
           {analysisResult.source !== 'label_ocr' && (
             <section>
-            <div className="flex items-end justify-between mb-5">
-              <div>
-                <h2 className="text-2xl md:text-3xl font-headline font-extrabold text-on-surface">Sağlık Riski Taraması</h2>
-                <p className="text-sm text-on-surface-variant mt-1">
-                  EFSA, IARC ve AB yönetmeliklerine göre genel sağlık açısından dikkat çekilen maddeler
-                </p>
-              </div>
-              {analysisResult.analysisResult?.riskyAdditives?.length > 0 && (
-                <span className="hidden md:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-tertiary/15 text-tertiary text-xs font-bold">
-                  <span className="material-symbols-outlined text-sm">policy</span>
-                  {analysisResult.analysisResult.riskyAdditives.length} bulgular
-                </span>
-              )}
-            </div>
-
-            {analysisResult.analysisResult?.riskyAdditives?.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {analysisResult.analysisResult.riskyAdditives.map((risk: any) => {
-                  const sevConfig: Record<string, { ring: string; bg: string; text: string; iconBg: string; icon: string; label: string }> = {
-                    HIGH: { ring: 'border-error/40', bg: 'bg-error/5', text: 'text-error', iconBg: 'bg-error/15 text-error', icon: 'gpp_maybe', label: 'Yüksek Risk' },
-                    MEDIUM: { ring: 'border-tertiary/40', bg: 'bg-tertiary/10', text: 'text-tertiary', iconBg: 'bg-tertiary/15 text-tertiary', icon: 'warning', label: 'Orta Risk' },
-                    LOW: { ring: 'border-secondary/40', bg: 'bg-secondary/10', text: 'text-secondary', iconBg: 'bg-secondary/15 text-secondary', icon: 'info', label: 'Hassas Gruplar' }
-                  };
-                  const c = sevConfig[risk.severity] || sevConfig.LOW;
-                  const catLabel: Record<string, string> = {
-                    colorant: 'Renklendirici',
-                    preservative: 'Koruyucu',
-                    sweetener: 'Tatlandırıcı',
-                    flavor_enhancer: 'Tat Artırıcı',
-                    emulsifier: 'Emülgatör',
-                    fat: 'Yağ',
-                    sugar: 'Şeker',
-                    other: 'Diğer'
-                  };
-
-                  return (
-                    <div key={risk.code} className={`relative rounded-2xl border-2 ${c.ring} ${c.bg} p-5 shadow-sm`}>
-                      <div className="flex items-start gap-3">
-                        <div className={`w-10 h-10 rounded-xl ${c.iconBg} flex items-center justify-center flex-shrink-0`}>
-                          <span className="material-symbols-outlined text-xl">{c.icon}</span>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between gap-2 flex-wrap">
-                            <h4 className="font-headline font-bold text-on-surface text-base leading-tight">{risk.name}</h4>
-                            <span className={`text-[10px] font-extrabold ${c.text} uppercase tracking-wider px-2 py-0.5 rounded-full bg-surface-container-lowest/70 border border-current/20 whitespace-nowrap`}>
-                              {c.label}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2 mt-1 mb-2">
-                            <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">{catLabel[risk.category] || risk.category}</span>
-                            <span className="text-on-surface-variant/40">•</span>
-                            <span className={`text-[11px] font-bold ${c.text}`}>{risk.shortLabel}</span>
-                          </div>
-                          <p className="text-sm text-on-surface-variant leading-relaxed">{risk.warning}</p>
-
-                          {risk.sensitiveGroups?.length > 0 && (
-                            <div className="mt-3 flex items-center gap-2 flex-wrap">
-                              <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Hassas:</span>
-                              {risk.sensitiveGroups.map((g: string) => (
-                                <span key={g} className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface-container-lowest border border-outline-variant/30 text-on-surface">
-                                  {g}
-                                </span>
-                              ))}
-                            </div>
-                          )}
-
-                          {risk.source && (
-                            <div className="mt-3 pt-3 border-t border-outline-variant/20 flex items-center gap-1.5">
-                              <span className="material-symbols-outlined text-xs text-on-surface-variant">verified</span>
-                              <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Kaynak:</span>
-                              <span className="text-[11px] font-semibold text-on-surface">{risk.source}</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="glass-card p-8 rounded-2xl border-2 border-primary/20 bg-primary/10 flex items-center gap-4 shadow-sm">
-                <div className="w-14 h-14 rounded-2xl bg-primary text-on-primary flex items-center justify-center flex-shrink-0 shadow-md">
-                  <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
-                </div>
+              <div className="flex items-end justify-between mb-5">
                 <div>
-                  <h4 className="font-headline font-bold text-on-surface">Bilinen zararlı/şüpheli madde tespit edilmedi</h4>
-                  <p className="text-sm text-on-surface-variant mt-0.5">
-                    Veritabanımızdaki riskli E-kodları ve içeriklerden hiçbiri bu üründe yer almıyor.
+                  <h2 className="text-2xl md:text-3xl font-headline font-extrabold text-on-surface">Sağlık Riski Taraması</h2>
+                  <p className="text-sm text-on-surface-variant mt-1">
+                    EFSA, IARC ve AB yönetmeliklerine göre genel sağlık açısından dikkat çekilen maddeler
                   </p>
                 </div>
+                {analysisResult.analysisResult?.riskyAdditives?.length > 0 && (
+                  <span className="hidden md:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-tertiary/15 text-tertiary text-xs font-bold">
+                    <span className="material-symbols-outlined text-sm">policy</span>
+                    {analysisResult.analysisResult.riskyAdditives.length} bulgular
+                  </span>
+                )}
               </div>
-            )}
+
+              {analysisResult.analysisResult?.riskyAdditives?.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {analysisResult.analysisResult.riskyAdditives.map((risk: any) => {
+                    const sevConfig: Record<string, { ring: string; bg: string; text: string; iconBg: string; icon: string; label: string }> = {
+                      HIGH: { ring: 'border-error/40', bg: 'bg-error/5', text: 'text-error', iconBg: 'bg-error/15 text-error', icon: 'gpp_maybe', label: 'Yüksek Risk' },
+                      MEDIUM: { ring: 'border-tertiary/40', bg: 'bg-tertiary/10', text: 'text-tertiary', iconBg: 'bg-tertiary/15 text-tertiary', icon: 'warning', label: 'Orta Risk' },
+                      LOW: { ring: 'border-secondary/40', bg: 'bg-secondary/10', text: 'text-secondary', iconBg: 'bg-secondary/15 text-secondary', icon: 'info', label: 'Hassas Gruplar' }
+                    };
+                    const c = sevConfig[risk.severity] || sevConfig.LOW;
+                    const catLabel: Record<string, string> = {
+                      colorant: 'Renklendirici',
+                      preservative: 'Koruyucu',
+                      sweetener: 'Tatlandırıcı',
+                      flavor_enhancer: 'Tat Artırıcı',
+                      emulsifier: 'Emülgatör',
+                      fat: 'Yağ',
+                      sugar: 'Şeker',
+                      other: 'Diğer'
+                    };
+
+                    return (
+                      <div key={risk.code} className={`relative rounded-2xl border-2 ${c.ring} ${c.bg} p-5 shadow-sm`}>
+                        <div className="flex items-start gap-3">
+                          <div className={`w-10 h-10 rounded-xl ${c.iconBg} flex items-center justify-center flex-shrink-0`}>
+                            <span className="material-symbols-outlined text-xl">{c.icon}</span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-2 flex-wrap">
+                              <h4 className="font-headline font-bold text-on-surface text-base leading-tight">{risk.name}</h4>
+                              <span className={`text-[10px] font-extrabold ${c.text} uppercase tracking-wider px-2 py-0.5 rounded-full bg-surface-container-lowest/70 border border-current/20 whitespace-nowrap`}>
+                                {c.label}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2 mt-1 mb-2">
+                              <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">{catLabel[risk.category] || risk.category}</span>
+                              <span className="text-on-surface-variant/40">•</span>
+                              <span className={`text-[11px] font-bold ${c.text}`}>{risk.shortLabel}</span>
+                            </div>
+                            <p className="text-sm text-on-surface-variant leading-relaxed">{risk.warning}</p>
+
+                            {risk.sensitiveGroups?.length > 0 && (
+                              <div className="mt-3 flex items-center gap-2 flex-wrap">
+                                <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Hassas:</span>
+                                {risk.sensitiveGroups.map((g: string) => (
+                                  <span key={g} className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface-container-lowest border border-outline-variant/30 text-on-surface">
+                                    {g}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+
+                            {risk.source && (
+                              <div className="mt-3 pt-3 border-t border-outline-variant/20 flex items-center gap-1.5">
+                                <span className="material-symbols-outlined text-xs text-on-surface-variant">verified</span>
+                                <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Kaynak:</span>
+                                <span className="text-[11px] font-semibold text-on-surface">{risk.source}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="glass-card p-8 rounded-2xl border-2 border-primary/20 bg-primary/10 flex items-center gap-4 shadow-sm">
+                  <div className="w-14 h-14 rounded-2xl bg-primary text-on-primary flex items-center justify-center flex-shrink-0 shadow-md">
+                    <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
+                  </div>
+                  <div>
+                    <h4 className="font-headline font-bold text-on-surface">Bilinen zararlı/şüpheli madde tespit edilmedi</h4>
+                    <p className="text-sm text-on-surface-variant mt-0.5">
+                      Veritabanımızdaki riskli E-kodları ve içeriklerden hiçbiri bu üründe yer almıyor.
+                    </p>
+                  </div>
+                </div>
+              )}
             </section>
           )}
 
           {/* ── Alt detay kartları (E-kodu tüm liste + Alerjen etiketi) ─── */}
           {analysisResult.source !== 'label_ocr' && (
             <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-surface-container-lowest/70 p-5 rounded-2xl border border-outline-variant/20 shadow-sm">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="material-symbols-outlined text-secondary">science</span>
-                <h4 className="font-headline font-bold text-on-surface">Tüm E-Kodları</h4>
-              </div>
-              {analysisResult.food.eCodes?.length > 0 ? (
-                <div className="flex flex-wrap gap-1.5">
-                  {analysisResult.food.eCodes.map((c: string) => (
-                    <span key={c} className="px-2.5 py-1 rounded-full bg-secondary/10 text-secondary text-xs font-bold">{c}</span>
-                  ))}
+              <div className="bg-surface-container-lowest/70 p-5 rounded-2xl border border-outline-variant/20 shadow-sm">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="material-symbols-outlined text-secondary">science</span>
+                  <h4 className="font-headline font-bold text-on-surface">Tüm E-Kodları</h4>
                 </div>
-              ) : (
-                <p className="text-sm text-on-surface-variant italic">E-kod tespit edilmedi.</p>
-              )}
-            </div>
+                {analysisResult.food.eCodes?.length > 0 ? (
+                  <div className="flex flex-wrap gap-1.5">
+                    {analysisResult.food.eCodes.map((c: string) => (
+                      <span key={c} className="px-2.5 py-1 rounded-full bg-secondary/10 text-secondary text-xs font-bold">{c}</span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-on-surface-variant italic">E-kod tespit edilmedi.</p>
+                )}
+              </div>
 
-            <div className="bg-surface-container-lowest/70 p-5 rounded-2xl border border-outline-variant/20 shadow-sm">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="material-symbols-outlined text-error">coronavirus</span>
-                <h4 className="font-headline font-bold text-on-surface">Etiket Alerjenleri</h4>
-              </div>
-              {analysisResult.food.allergens?.length > 0 ? (
-                <div className="flex flex-wrap gap-1.5">
-                  {analysisResult.food.allergens.map((a: string) => (
-                    <span key={a} className="px-2.5 py-1 rounded-full bg-error/10 text-error text-xs font-bold">{a}</span>
-                  ))}
+              <div className="bg-surface-container-lowest/70 p-5 rounded-2xl border border-outline-variant/20 shadow-sm">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="material-symbols-outlined text-error">coronavirus</span>
+                  <h4 className="font-headline font-bold text-on-surface">Etiket Alerjenleri</h4>
                 </div>
-              ) : (
-                <p className="text-sm text-on-surface-variant italic">Alerjen bilgisi yok.</p>
-              )}
-            </div>
+                {analysisResult.food.allergens?.length > 0 ? (
+                  <div className="flex flex-wrap gap-1.5">
+                    {analysisResult.food.allergens.map((a: string) => (
+                      <span key={a} className="px-2.5 py-1 rounded-full bg-error/10 text-error text-xs font-bold">{a}</span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-on-surface-variant italic">Alerjen bilgisi yok.</p>
+                )}
+              </div>
             </section>
           )}
 
@@ -1324,22 +1302,22 @@ export default function Analysis() {
                 <div
                   key={scan._id}
                   className={`p-4 rounded-2xl border-2 transition-all shadow-sm ${isDismissed
-                      ? 'bg-surface-container/40 border-outline-variant/30 opacity-75'
-                      : hasAllergen
-                        ? 'bg-error/5 border-error/30'
-                        : hasHighRisk
-                          ? 'bg-tertiary/10 border-tertiary/30'
-                          : isConsumed
-                            ? 'bg-primary/10 border-primary/30'
-                            : 'bg-surface-container-lowest/70 border-outline-variant/30 hover:border-primary/40'
+                    ? 'bg-surface-container/40 border-outline-variant/30 opacity-75'
+                    : hasAllergen
+                      ? 'bg-error/5 border-error/30'
+                      : hasHighRisk
+                        ? 'bg-tertiary/10 border-tertiary/30'
+                        : isConsumed
+                          ? 'bg-primary/10 border-primary/30'
+                          : 'bg-surface-container-lowest/70 border-outline-variant/30 hover:border-primary/40'
                     }`}
                 >
                   <div className="flex items-start gap-3">
                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${isDismissed ? 'bg-on-surface-variant/15 text-on-surface-variant' :
-                        hasAllergen ? 'bg-error/15 text-error' :
-                          hasHighRisk ? 'bg-tertiary/15 text-tertiary' :
-                            isConsumed ? 'bg-primary/15 text-primary' :
-                              'bg-primary/10 text-primary'
+                      hasAllergen ? 'bg-error/15 text-error' :
+                        hasHighRisk ? 'bg-tertiary/15 text-tertiary' :
+                          isConsumed ? 'bg-primary/15 text-primary' :
+                            'bg-primary/10 text-primary'
                       }`}>
                       <span className="material-symbols-outlined">
                         {isDismissed ? 'do_not_disturb_on' : 'inventory_2'}
