@@ -124,10 +124,9 @@ ${JSON.stringify(rawProductData, null, 2)}
 
 export const parseNaturalMeal = async (description: string): Promise<MealItem[]> => {
     const prompt = `
-Aşağıdaki doğal dille yazılmış öğün açıklamasını analiz et.
-ÖNEMLİ: Türkiye standartlarını kullan (1 kase yoğurt=200g/130kcal, 1 tabak makarna=200g/320kcal). Mutlaka PİŞMİŞ değerleri baz al.
+Aşağıdaki doğal dille yazılmış öğün açıklamasını analiz et ve her bir yiyecek için besin değerlerini tahmin et.
 Sadece JSON dizisi döndür, başka hiçbir şey yazma:
-[{ "name": "Yiyecek Adı", "calories": 0, "protein": 0, "carbohydrates": 0, "fat": 0 }]
+[{ "name": "string", "calories": 0, "protein": 0, "carbohydrates": 0, "fat": 0 }]
 
 Öğün: "${description}"
 `;
