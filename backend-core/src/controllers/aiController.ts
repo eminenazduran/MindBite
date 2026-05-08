@@ -14,7 +14,7 @@ async function withRetry<T>(fn: () => Promise<T>, retries = 3, delayMs = 3000): 
       return await fn();
     } catch (err: any) {
       const msg = err?.message || '';
-      
+
       // Kota aşımı durumu (çok fazla istek)
       if (msg.includes('429')) {
         const match = msg.match(/retry in (\d+)/i);

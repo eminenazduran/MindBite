@@ -1,4 +1,4 @@
-import { Link, Outlet, useNavigate } from 'react-router-dom';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -189,7 +189,10 @@ function FooterLink({ to, children }: { to: string; children: React.ReactNode })
 export default function Layout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   useMealReminders();
+
+  const hideMobileTopNav = !user && location.pathname === '/';
 
   const handleLogout = () => {
     logout();
@@ -199,7 +202,7 @@ export default function Layout() {
   return (
     <>
       {/* Top Navbar */}
-      <nav className="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl shadow-[0_16px_48px_rgba(0,0,0,0.06)] border-b border-outline-variant/20">
+      <nav className={`fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl shadow-[0_16px_48px_rgba(0,0,0,0.06)] border-b border-outline-variant/20 ${hideMobileTopNav ? 'hidden md:block' : ''}`}>
         <div className="max-w-7xl mx-auto flex justify-between items-center px-8 py-4">
           <Link to="/" className="flex items-center gap-2 group">
             <img
@@ -249,7 +252,7 @@ export default function Layout() {
       <AiChat />
 
       {/* Bottom NavBar for Mobile */}
-      <nav className="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-6 pb-6 pt-3 bg-surface/85 backdrop-blur-2xl z-50 rounded-t-[3rem] shadow-[0_-16px_48px_rgba(0,0,0,0.06)] border-t border-outline-variant/20">
+      <nav className={`md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-6 pb-6 pt-3 bg-surface/85 backdrop-blur-2xl z-50 rounded-t-[3rem] shadow-[0_-16px_48px_rgba(0,0,0,0.06)] border-t border-outline-variant/20 ${!user ? 'hidden' : ''}`}>
         <Link className="flex flex-col items-center justify-center text-on-surface-variant px-5 py-2 hover:text-primary" to="/">
           <span className="material-symbols-outlined">home</span>
           <span className="font-['Inter'] text-[10px] font-medium">Ana Sayfa</span>

@@ -91,7 +91,7 @@ export default function AiChat() {
       {/* Floating Buton */}
       <button
         onClick={() => setOpen(o => !o)}
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full hero-gradient text-white shadow-2xl flex items-center justify-center hover:scale-110 transition-all duration-200"
+        className="fixed right-4 bottom-[calc(6.5rem+env(safe-area-inset-bottom))] md:right-6 md:bottom-6 z-50 w-14 h-14 rounded-full hero-gradient text-white shadow-2xl flex items-center justify-center hover:scale-110 transition-all duration-200"
         aria-label="AI Asistan"
       >
         {open
@@ -106,7 +106,7 @@ export default function AiChat() {
 
       {/* Chat Panel */}
       <div
-        className={`fixed bottom-24 right-6 z-50 w-full max-w-sm flex flex-col bg-surface rounded-3xl shadow-2xl border border-outline-variant/20 overflow-hidden transition-all duration-300 origin-bottom-right ${
+        className={`fixed left-3 right-3 bottom-[calc(10rem+env(safe-area-inset-bottom))] md:left-auto md:right-6 md:bottom-24 z-50 w-auto md:w-full md:max-w-sm flex flex-col bg-surface rounded-3xl shadow-2xl border border-outline-variant/20 overflow-hidden transition-all duration-300 origin-bottom-right ${
           open ? 'scale-100 opacity-100 pointer-events-auto' : 'scale-95 opacity-0 pointer-events-none'
         }`}
         style={{ maxHeight: '75vh' }}

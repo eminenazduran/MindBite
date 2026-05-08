@@ -102,8 +102,6 @@ export default function Dashboard() {
   // Sadece "Tükettim" onaylı kayıtlar günlük kalori/makro toplamına dahil edilir.
   // Diğerleri "geçmiş tarama" olarak listede görünür ama kalori sayacına yazmaz.
   const consumedToday = todayHistory.filter(h => h.consumed === true);
-  // OCR etiket taramaları ('L-' ile başlayan sanal barkodlar) onay beklemez, çünkü onlarda kalori hesabı yapılmıyor.
-  const pendingToday = todayHistory.filter(h => h.consumed !== true && h.dismissed !== true && !h.barcode?.startsWith('L-'));
 
   const totals = consumedToday.reduce((acc, h) => {
     const food = h.foodId;
@@ -182,8 +180,8 @@ export default function Dashboard() {
           <button
             onClick={() => setShowWeeklyReport(r => !r)}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold transition-all border ${showWeeklyReport
-                ? 'bg-primary text-white border-primary shadow-md'
-                : 'bg-surface-container-high text-on-surface-variant border-outline-variant/30 hover:border-primary/40 hover:text-primary'
+              ? 'bg-primary text-white border-primary shadow-md'
+              : 'bg-surface-container-high text-on-surface-variant border-outline-variant/30 hover:border-primary/40 hover:text-primary'
               }`}
           >
             <span className="material-symbols-outlined text-base">insights</span>
@@ -191,29 +189,6 @@ export default function Dashboard() {
           </button>
         </div>
       </section>
-
-      {/* ── Onay bekleyen taramalar bilgi banner'ı (Analysis sayfasına yönlendirir) ─── */}
-      {pendingToday.length > 0 && (
-        <Link
-          to="/analysis"
-          className="block bg-tertiary/10 border border-tertiary/20 rounded-2xl px-4 py-3 hover:bg-tertiary/15 transition group"
-        >
-          <div className="flex items-start sm:items-center gap-3 flex-col sm:flex-row">
-            <div className="w-10 h-10 rounded-xl bg-tertiary/15 flex items-center justify-center flex-shrink-0">
-              <span className="material-symbols-outlined text-tertiary">pending_actions</span>
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-bold text-on-surface text-sm">
-                {pendingToday.length} tarama tüketim onayı bekliyor
-              </p>
-              <p className="text-xs text-on-surface-variant">
-                Tarama geçmişinizi <strong>Analiz sayfasında</strong> yönetin ve tükettiğinizi onaylayın.
-              </p>
-            </div>
-            <span className="material-symbols-outlined text-tertiary group-hover:translate-x-1 transition-transform">arrow_forward</span>
-          </div>
-        </Link>
-      )}
 
       {/* ── 2. HIZLI ÖĞÜN EKLE ──────────────────────────────── */}
       <section className="bg-surface-container-lowest/70 backdrop-blur-md rounded-3xl border border-primary/10 shadow-sm p-5">
@@ -592,8 +567,8 @@ function HealthScoreSummary({ data }: { data: any }) {
                   <div className="flex-1 w-full flex items-end" title={`${d.date}: ${d.score ?? '—'}`}>
                     <div
                       className={`w-full rounded-md transition-all duration-700 ${d.score === null ? 'bg-surface-container-high'
-                          : isToday ? 'bg-primary'
-                            : 'bg-primary/40'
+                        : isToday ? 'bg-primary'
+                          : 'bg-primary/40'
                         }`}
                       style={{ height: `${Math.max(h, 8)}%` }}
                     />

@@ -51,14 +51,15 @@ const UNIT_GRAMS: Record<UnitKey, number> = {
     yemek_kasigi: 12,
     tatli_kasigi: 6,
     cay_kasigi: 3,
-    kase: 220,
-    tabak: 250,
+    // Genel ortalama değerler: gıdaya-özel porsiyon yoksa kullanılır.
+    kase: 180,
+    tabak: 220,
     su_bardagi: 200,
     cay_bardagi: 100,
     dilim: 30,
     adet: 60,
     avuc: 28,
-    porsiyon: 180,
+    porsiyon: 170,
     gram: 1,
     mililitre: 1
 };

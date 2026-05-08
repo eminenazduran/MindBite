@@ -1,7 +1,52 @@
+import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
+
 export default function Landing() {
+  const { user } = useAuth();
+  const { theme, toggleTheme } = useTheme();
+  const isLoggedIn = Boolean(user);
+
   return (
     <main className="pt-24 bg-background text-on-surface">
-      <section className="relative px-8 py-12 md:py-24 max-w-7xl mx-auto overflow-visible">
+      {!isLoggedIn && (
+        <section className="md:hidden min-h-[calc(100vh-11rem)] px-6 flex flex-col items-center justify-center text-center">
+          <button
+            onClick={toggleTheme}
+            className="fixed top-6 right-5 z-40 w-11 h-11 rounded-full bg-surface/90 border border-outline-variant/30 flex items-center justify-center text-on-surface shadow-sm"
+            aria-label={theme === 'dark' ? 'Aydınlık temaya geç' : 'Karanlık temaya geç'}
+            title={theme === 'dark' ? 'Aydınlık tema' : 'Karanlık tema'}
+          >
+            <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>
+              {theme === 'dark' ? 'dark_mode' : 'light_mode'}
+            </span>
+          </button>
+          <img
+            src="/mindbite-logo.png"
+            alt="MindBite"
+            className="w-20 h-20 rounded-2xl object-cover ring-1 ring-primary/20 shadow-lg mb-5"
+          />
+          <h1 className="font-headline text-5xl font-extrabold tracking-tight text-primary">
+            MindBite
+          </h1>
+          <div className="mt-8 w-full max-w-sm grid grid-cols-2 gap-3">
+            <Link
+              to="/login"
+              className="text-center px-4 py-3 rounded-2xl border border-outline-variant text-primary font-bold hover:bg-surface-container-low transition-colors"
+            >
+              Giriş Yap
+            </Link>
+            <Link
+              to="/register"
+              className="text-center px-4 py-3 rounded-2xl hero-gradient text-on-primary font-bold shadow-md"
+            >
+              Kayıt Ol
+            </Link>
+          </div>
+        </section>
+      )}
+
+      <section className={`${!isLoggedIn ? 'hidden md:block' : ''} relative px-8 py-12 md:py-24 max-w-7xl mx-auto overflow-visible`}>
         <div className="flex flex-col md:flex-row items-center gap-16">
           <div className="flex-1 space-y-8 z-10">
             <div className="inline-flex items-center px-4 py-2 bg-secondary-fixed text-on-secondary-fixed rounded-full text-sm font-semibold tracking-wide uppercase font-label">
@@ -14,16 +59,29 @@ export default function Landing() {
             <p className="text-lg md:text-xl text-on-surface-variant max-w-lg leading-relaxed font-body">
             Ne yediğinizi bilin, daha sağlıklı seçimler yapın. MindBite sayesinde gıdaların içeriğini anlayın, riskleri görün, sağlığınızı koruyun.
             </p>
-            <div className="flex flex-wrap gap-4">
-              <button className="px-8 py-4 hero-gradient text-on-primary rounded-full font-semibold shadow-lg hover:scale-105 transition-transform active:scale-95">
-                Hemen Başlayın
-              </button>
-              <button className="px-8 py-4 border border-outline-variant text-primary rounded-full font-semibold hover:bg-surface-container-low transition-colors active:scale-95">
-                Keşfet
-              </button>
+            <div className="hidden md:flex flex-wrap gap-4">
+              {isLoggedIn ? (
+                <>
+                  <Link to="/dashboard" className="px-8 py-4 hero-gradient text-on-primary rounded-full font-semibold shadow-lg hover:scale-105 transition-transform active:scale-95">
+                    Panelime Git
+                  </Link>
+                  <Link to="/analysis" className="px-8 py-4 border border-outline-variant text-primary rounded-full font-semibold hover:bg-surface-container-low transition-colors active:scale-95">
+                    Analiz Et
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link to="/register" className="px-8 py-4 hero-gradient text-on-primary rounded-full font-semibold shadow-lg hover:scale-105 transition-transform active:scale-95">
+                    Hemen Başlayın
+                  </Link>
+                  <Link to="/login" className="px-8 py-4 border border-outline-variant text-primary rounded-full font-semibold hover:bg-surface-container-low transition-colors active:scale-95">
+                    Keşfet
+                  </Link>
+                </>
+              )}
             </div>
           </div>
-          <div className="flex-1 relative w-full h-[500px]">
+          <div className="hidden md:block flex-1 relative w-full h-[500px]">
             <div className="absolute inset-0 rounded-xl overflow-hidden shadow-[0_32px_64px_rgba(0,0,0,0.15)]">
               <img
                 alt="Taze sebze ve meyvelerle hazırlanmış sağlıklı tabak"
@@ -61,7 +119,70 @@ export default function Landing() {
         </div>
       </section>
 
-      <section className="bg-surface-container-low py-24 px-8 mt-12 rounded-t-[5rem]">
+      {isLoggedIn && (
+        <section className="bg-surface-container-low py-12 md:py-16 px-6 md:px-8 mt-4 md:mt-8 rounded-t-[2.5rem] md:rounded-t-[5rem]">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-10 space-y-3">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-bold tracking-wider">
+                <span className="material-symbols-outlined text-sm">auto_awesome</span>
+                SİSTEMİ NASIL KULLANIRIM?
+              </div>
+              <h2 className="font-headline text-3xl md:text-4xl font-bold text-primary tracking-tight">
+                MindBite ile günlük rutininizi <span className="text-secondary italic">3 adımda</span> yönetin
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+              {[
+                {
+                  icon: 'barcode_scanner',
+                  title: 'Öğün Ekle',
+                  desc: 'Analiz ekranından barkod tarayın ya da doğal dille öğün girin.',
+                  cta: 'Analize Git',
+                  to: '/analysis',
+                },
+                {
+                  icon: 'monitoring',
+                  title: 'Paneli Takip Et',
+                  desc: 'Günlük kalori, makro dağılımı ve sağlık puanınızı anlık izleyin.',
+                  cta: 'Panelime Git',
+                  to: '/dashboard',
+                },
+                {
+                  icon: 'insights',
+                  title: 'Raporları Yorumla',
+                  desc: 'Haftalık trend ve AI önerileriyle alışkanlıklarınızı iyileştirin.',
+                  cta: 'Profili Aç',
+                  to: '/profile',
+                },
+              ].map((item) => (
+                <div key={item.title} className="bg-surface-container-lowest rounded-2xl border border-primary/10 p-5 md:p-6 shadow-sm">
+                  <div className="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4">
+                    <span className="material-symbols-outlined">{item.icon}</span>
+                  </div>
+                  <h3 className="font-headline text-lg font-bold text-on-surface mb-2">{item.title}</h3>
+                  <p className="text-sm text-on-surface-variant leading-relaxed mb-4">{item.desc}</p>
+                  <Link to={item.to} className="inline-flex items-center gap-1 text-sm font-bold text-primary hover:underline">
+                    {item.cta}
+                    <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                  </Link>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-5 md:hidden bg-surface-container-lowest rounded-2xl border border-primary/10 p-5 shadow-sm">
+              <h3 className="font-headline text-lg font-bold text-primary mb-3">Hızlı Başlangıç</h3>
+              <div className="space-y-2.5 text-sm text-on-surface-variant leading-relaxed">
+                <p><span className="text-primary font-semibold">1.</span> Analiz ekranında barkod okutun veya öğün girin.</p>
+                <p><span className="text-primary font-semibold">2.</span> Tükettim onayı vererek günlüğe ekleyin.</p>
+                <p><span className="text-primary font-semibold">3.</span> Panelde puan ve makroları takip edin.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      <section className={`${isLoggedIn ? 'hidden md:block' : ''} bg-surface-container-low py-24 px-8 mt-12 rounded-t-[5rem]`}>
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16 space-y-4">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-bold tracking-wider">
@@ -163,7 +284,7 @@ export default function Landing() {
         </div>
       </section>
 
-      <section className="py-24 px-8 max-w-7xl mx-auto">
+      <section className={`${isLoggedIn ? 'hidden md:block' : ''} py-24 px-8 max-w-7xl mx-auto`}>
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 auto-rows-[280px]">
           <div className="md:col-span-8 bg-surface-container-lowest glass-card rounded-xl p-10 flex flex-col relative overflow-hidden border border-outline-variant/10 group">
             <img alt="Sağlıklı yemek tabağı" className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:scale-110 transition-transform duration-700" src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=1400&q=80"/>

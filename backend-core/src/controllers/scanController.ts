@@ -279,10 +279,13 @@ export const logNaturalMeal = async (req: Request, res: Response) => {
       const food = new Food({
         barcode: virtualBarcode,
         productName: displayName,
-        calories: totalCalories,
-        protein: totalProtein,
-        carbohydrates: totalCarbs,
-        fat: totalFat,
+        // Food modelinde değerler 100g bazlı tutulur.
+        // Günlük listede servingSize ile tekrar ölçekleme yapıldığı için
+        // burada toplam değil per100g kaydetmeliyiz.
+        calories: lookup.per100g.kcal,
+        protein: lookup.per100g.protein,
+        carbohydrates: lookup.per100g.carbohydrates,
+        fat: lookup.per100g.fat,
         isGeneric: true,
         ingredients: [parsed.query],
         category: lookup.category,
@@ -290,7 +293,7 @@ export const logNaturalMeal = async (req: Request, res: Response) => {
         analysisResult: {
           isSafe: true,
           riskLevel: 'LOW',
-          aiComment: `Doğal dille girilen öğün. Kaynak: ${lookup.source}. Miktar: ${effectiveGrams}g.`
+          aiComment: `Doğal dille girilen öğün. Kaynak: ${lookup.source}. Miktar: ${effectiveGrams}g. Toplam: ${totalCalories} kcal (P:${totalProtein} K:${totalCarbs} Y:${totalFat}).`
         }
       });
 

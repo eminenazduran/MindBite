@@ -154,7 +154,9 @@ export const TR_FOOD_SEED: TrFoodRef[] = [
         keywords: ['makarna', 'spagetti', 'penne'],
         kcal: 158, protein: 5.8, carbohydrates: 31, fat: 0.9,
         category: 'tahil', quality: 0.55,
-        portions: { kase: 200, porsiyon: 180, tabak: 250 }
+        // Pişmiş makarnada porsiyonlar genel kullanımda daha düşüktür.
+        // 1 tabak ~200g alındığında yaklaşık 316 kcal eder.
+        portions: { kase: 160, porsiyon: 180, tabak: 200 }
     },
     {
         name: 'Yulaf ezmesi',
