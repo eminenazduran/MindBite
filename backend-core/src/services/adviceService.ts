@@ -15,12 +15,15 @@ export const generateNutritionalAdvice = async (
   goals: { calories: number; protein: number; carbohydrates: number; fat: number },
   foodHistory: string[]
 ): Promise<NutritionalAdvice> => {
-  try {
-    const genAI = getGenAI(process.env.GEMINI_KEY_REPORT || '');
-    const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest', generationConfig: { responseMimeType: "application/json" } });
-
-    const prompt = `
-Aşağıda bir kullanıcının bugünkü toplam beslenme verileri ve hedefleri var. 
+  // Kota (429) hatalarını önlemek için alternatif API key'leri sırayla deneyelim
+  const keys = [process.env.GEMINI_KEY_CHAT, process.env.GEMINI_KEY_SCAN, process.env.GEMINI_KEY_REPORT].filter(Boolean) as string[];
+  
+  for (let i = 0; i < keys.length; i++) {
+    try {
+      const genAI = getGenAI(keys[i]);
+      const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest', generationConfig: { responseMimeType: "application/json" } });
+      
+      const prompt = `Aşağıda bir kullanıcının bugünkü toplam beslenme verileri ve hedefleri var. 
 Ayrıca bugün tükettiği ürünlerin listesi de aşağıdadır.
 
 Bugünkü Tüketim:
@@ -38,18 +41,25 @@ Lütfen bu verileri analiz et ve kullanıcıya profesyonel, samimi ve yol göste
 - recommendations: (Neyi azaltmalı veya arttırmalı? Örn: ["Protein alımını 20g arttırmalısın", "Daha fazla lifli gıda tüket"])
 - tips: (Pratik tavsiyeler, örn: ["Akşam yemeğinde tavuk göğsü tercih edebilirsin.", "Şekerli içecekler yerine maden suyu iç."])
 
-Sadece JSON döndür.
-`;
+Sadece JSON döndür.`;
 
-    const result = await model.generateContent(prompt);
-    const text = result.response.text();
-    return JSON.parse(text);
-  } catch (error) {
-    console.error('Advice generation error:', error);
-    return {
-      summary: "Beslenme verilerin inceleniyor. Hedeflerine odaklanmaya devam et!",
-      recommendations: ["Daha fazla su içmeyi unutma.", "Protein alımına dikkat et."],
-      tips: ["Yürüyüş yapmayı ihmal etme."]
-    };
+      const result = await model.generateContent(prompt);
+      const text = result.response.text();
+      return JSON.parse(text);
+    } catch (error: any) {
+      console.error(`Advice generation error with key index ${i}:`, error.message);
+      // Eğer son key değilse döngüye devam et (diğer key'i dene)
+      if (i === keys.length - 1) {
+        // Son key de hata verirse fallback döndür
+        console.error('All API keys exhausted or failed.');
+      }
+    }
   }
+
+  // Tüm denemeler başarısız olursa
+  return {
+    summary: "Beslenme verilerin inceleniyor. Hedeflerine odaklanmaya devam et!",
+    recommendations: ["Daha fazla su içmeyi unutma.", "Protein alımına dikkat et."],
+    tips: ["Yürüyüş yapmayı ihmal etme."]
+  };
 };
