@@ -224,7 +224,9 @@ export default function Layout() {
           <div className="flex items-center gap-2">
             <ThemeToggleButton />
             {user ? (
+              <div className="hidden md:block">
                 <ProfileDropdown user={user} onLogout={handleLogout} />
+              </div>
             ) : (
               <div className="flex gap-2">
                 <Link
