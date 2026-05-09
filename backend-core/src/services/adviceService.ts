@@ -1,12 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-let genAIInstance: GoogleGenerativeAI | null = null;
-
-const getGenAI = () => {
-  if (!genAIInstance) {
-    genAIInstance = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
-  }
-  return genAIInstance;
+const getGenAI = (apiKey: string) => {
+  return new GoogleGenerativeAI(apiKey || '');
 };
 
 export interface NutritionalAdvice {
@@ -21,8 +16,8 @@ export const generateNutritionalAdvice = async (
   foodHistory: string[]
 ): Promise<NutritionalAdvice> => {
   try {
-    const genAI = getGenAI();
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash', generationConfig: { responseMimeType: "application/json" } });
+    const genAI = getGenAI(process.env.GEMINI_KEY_REPORT || '');
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash', generationConfig: { responseMimeType: "application/json" } });
 
     const prompt = `
 Aşağıda bir kullanıcının bugünkü toplam beslenme verileri ve hedefleri var. 

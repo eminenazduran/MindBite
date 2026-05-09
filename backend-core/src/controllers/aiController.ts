@@ -4,8 +4,8 @@ import { User } from '../models/User';
 import { ScanHistory } from '../models/ScanHistory';
 import { Food } from '../models/Food';
 
-const getGenAI = () => new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
-const AI_MODEL = 'gemini-2.5-flash';
+const getGenAI = (apiKey: string) => new GoogleGenerativeAI(apiKey || '');
+const AI_MODEL = 'gemini-1.5-flash'; // SDK için en stabil sürüm
 
 // 503/429 hatalarında otomatik retry
 async function withRetry<T>(fn: () => Promise<T>, retries = 3, delayMs = 3000): Promise<T> {
@@ -19,7 +19,7 @@ async function withRetry<T>(fn: () => Promise<T>, retries = 3, delayMs = 3000): 
       if (msg.includes('429')) {
         const match = msg.match(/retry in (\d+)/i);
         const waitTime = match ? match[1] : 'biraz';
-        throw new Error(`Çok hızlı işlem yapıyorsunuz. Lütfen ${waitTime} saniye bekleyip tekrar deneyin. ⏳`);
+        throw new Error(`Yapay zeka limiti doldu. Lütfen ${waitTime} saniye bekleyip tekrar deneyin. ⏳`);
       }
 
       const isRetryable = msg.includes('503') || msg.includes('overloaded');
@@ -85,7 +85,7 @@ KURALLAR:
 - Emoji kullanabilirsin ama abartma.
 - Tıbbi teşhis koyma, gerektiğinde uzmana yönlendir.`;
 
-    const genAI = getGenAI();
+    const genAI = getGenAI(process.env.GEMINI_KEY_CHAT || '');
     const model = genAI.getGenerativeModel({ model: AI_MODEL });
 
     // Geçmiş mesajları Gemini formatına çevir
@@ -108,6 +108,15 @@ KURALLAR:
     res.status(200).json({ status: 'success', data: { reply: response } });
   } catch (error: any) {
     console.error('AI Chat error:', error);
+    // Gemini SDK hata yakalama (429, Kota, Limit)
+    const errorMsg = error?.message || '';
+    if (error?.status === 429 || errorMsg.includes('429') || errorMsg.toLowerCase().includes('quota') || error?.response?.status === 429) {
+      return res.status(429).json({
+        status: 'error',
+        message: 'Yapay zeka şu an çok yoğun veya kota doldu. Lütfen 1-2 dakika sonra tekrar deneyin.',
+        isRateLimit: true
+      });
+    }
     res.status(500).json({ status: 'error', message: 'Asistan şu an yanıt veremiyor, lütfen tekrar dene.', debug: error.message });
   }
 };
@@ -200,7 +209,7 @@ export const weeklyReport = async (req: Request, res: Response) => {
     }));
 
     // Gemini ile rapor oluştur
-    const genAI = getGenAI();
+    const genAI = getGenAI(process.env.GEMINI_KEY_REPORT || '');
     const model = genAI.getGenerativeModel({
       model: AI_MODEL,
       generationConfig: { responseMimeType: 'application/json' }
@@ -271,6 +280,15 @@ Sadece JSON döndür.`;
     });
   } catch (error: any) {
     console.error('Weekly report error:', error);
+    // Gemini SDK hata yakalama (429, Kota, Limit)
+    const errorMsg = error?.message || '';
+    if (error?.status === 429 || errorMsg.includes('429') || errorMsg.toLowerCase().includes('quota') || error?.response?.status === 429) {
+      return res.status(429).json({
+        status: 'error',
+        message: 'Yapay zeka şu an çok yoğun veya kota doldu. Lütfen 1-2 dakika sonra tekrar deneyin.',
+        isRateLimit: true
+      });
+    }
     res.status(500).json({ status: 'error', message: error.message });
   }
 };
