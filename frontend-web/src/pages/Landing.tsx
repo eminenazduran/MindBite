@@ -318,66 +318,184 @@ export default function Landing() {
 
         {!isLoggedIn && (
           <>
-            {/* Features Section */}
-            <section className="bg-surface-container-low py-24 px-8">
+            <section className="bg-surface-container-low py-24 px-8 mt-12 rounded-t-[5rem]">
               <div className="max-w-7xl mx-auto">
                 <div className="text-center mb-16 space-y-4">
-                  <h2 className="font-headline text-4xl md:text-5xl font-bold text-primary tracking-tight">Neden MindBite?</h2>
-                  <p className="text-on-surface-variant max-w-2xl mx-auto text-lg font-medium opacity-80">
-                    Beslenmenizi bir üst seviyeye taşıyacak akıllı araçlar ve gerçek zamanlı yapay zeka desteği.
+                  <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-bold tracking-wider">
+                    <span className="material-symbols-outlined text-sm">bolt</span>
+                    3 ADIMDA
+                  </div>
+                  <h2 className="font-headline text-4xl md:text-5xl font-bold text-primary tracking-tight">
+                    Nasıl <span className="text-secondary italic">Çalışır?</span>
+                  </h2>
+                  <p className="text-on-surface-variant max-w-xl mx-auto text-lg">
+                    Tarayın, analiz edin ve bilinçli seçimler yapın.
                   </p>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  {[
-                    {
-                      icon: 'barcode_scanner',
-                      title: 'Barkod Tarama',
-                      desc: 'Ürünlerin barkodunu saniyeler içinde tarayın, içeriği ve katkı maddelerini anında görün.',
-                    },
-                    {
-                      icon: 'auto_awesome',
-                      title: 'AI Analizi',
-                      desc: 'Yapay zeka ile ürünlerin size özel uygunluğunu ve gizli risklerini analiz edin.',
-                    },
-                    {
-                      icon: 'favorite',
-                      title: 'Sağlık Puanı',
-                      desc: 'Her öğün ve her ürün için kişiselleştirilmiş sağlık puanınızı takip edin.',
-                    },
-                  ].map((f) => (
-                    <div key={f.title} className="bg-surface-container-lowest p-10 rounded-[3rem] border border-primary/5 hover:border-primary/20 transition-all group shadow-sm">
-                      <div className="w-16 h-16 rounded-[1.5rem] bg-primary/10 text-primary flex items-center justify-center mb-8 group-hover:scale-110 transition-transform shadow-sm">
-                        <span className="material-symbols-outlined text-3xl">{f.icon}</span>
+
+                <div className="relative">
+                  {/* Connector line - desktop only */}
+                  <div className="hidden md:block absolute top-[72px] left-[16.66%] right-[16.66%] h-0.5 bg-gradient-to-r from-primary/30 via-secondary/30 to-tertiary/30" aria-hidden="true"></div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+                    {[
+                      {
+                        step: "01",
+                        tone: "primary",
+                        icon: "barcode_scanner",
+                        title: "Tarayın",
+                        desc: "Ürün barkodunu tarayın veya öğününüzü kendiniz yazın. — ",
+                        tag: "kişiselleştirilmiş",
+                        border: "border-primary/20",
+                        iconBg: "bg-primary",
+                        iconText: "text-on-primary",
+                        glow: "bg-primary-fixed/30",
+                        stepText: "text-primary",
+                        titleText: "text-primary",
+                      },
+                      {
+                        step: "02",
+                        tone: "secondary",
+                        icon: "query_stats",
+                        title: "Analiz Edin",
+                        desc: "Kalori, makro dağılımı, alerjenler ve katkı maddeleri anında karşınızda — ",
+                        tag: "sade ve bilimsel",
+                        border: "border-secondary/20",
+                        iconBg: "bg-secondary",
+                        iconText: "text-on-secondary",
+                        glow: "bg-secondary-fixed/30",
+                        stepText: "text-secondary",
+                        titleText: "text-secondary",
+                      },
+                      {
+                        step: "03",
+                        tone: "tertiary",
+                        icon: "health_and_safety",
+                        title: "Harekete Geçin",
+                        desc: "Günlük sağlık puanınızı, 7 günlük trendinizi ve kişisel uyarılarınızı takip edin — ",
+                        tag: "gerçek zamanlı",
+                        border: "border-tertiary/20",
+                        iconBg: "bg-tertiary",
+                        iconText: "text-on-tertiary",
+                        glow: "bg-tertiary-fixed/30",
+                        stepText: "text-tertiary",
+                        titleText: "text-tertiary",
+                      },
+                    ].map((s) => (
+                      <div
+                        key={s.step}
+                        className={`group p-8 bg-surface-container-lowest rounded-2xl border ${s.border} shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 relative overflow-hidden`}
+                      >
+                        <div className={`absolute top-0 right-0 w-40 h-40 ${s.glow} rounded-full -mr-20 -mt-20 blur-3xl opacity-50 group-hover:opacity-100 transition-opacity`}></div>
+                        
+                        <div className={`absolute top-6 right-6 font-headline text-4xl font-extrabold ${s.stepText} opacity-10 group-hover:opacity-20 transition-opacity`}>
+                          {s.step}
+                        </div>
+
+                        <div className={`relative z-10 mb-6 w-16 h-16 rounded-2xl ${s.iconBg} ${s.iconText} flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
+                          <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>{s.icon}</span>
+                        </div>
+
+                        <p className={`text-[11px] font-bold tracking-wider uppercase ${s.stepText} mb-2`}>
+                          Adım {s.step}
+                        </p>
+
+                        <h3 className={`font-headline text-2xl font-bold mb-3 ${s.titleText}`}>
+                          {s.title}
+                        </h3>
+
+                        <p className="text-on-surface-variant leading-relaxed text-sm">
+                          {s.desc}
+                          <span className={`font-mono font-semibold ${s.titleText}`}>{s.tag}</span>.
+                        </p>
                       </div>
-                      <h3 className="font-headline text-2xl font-extrabold text-on-surface mb-4">{f.title}</h3>
-                      <p className="text-on-surface-variant leading-relaxed font-medium opacity-90">{f.desc}</p>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
             </section>
 
-            {/* AI Highlight Section */}
-            <section className="py-24 px-8">
-               <div className="max-w-7xl mx-auto bg-primary rounded-[4.5rem] p-12 md:p-24 text-white flex flex-col md:flex-row items-center gap-16 relative overflow-hidden shadow-2xl">
-                  <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-white/5 rounded-full blur-[100px] -mr-64 -mt-64"></div>
-                  <div className="flex-1 space-y-8 z-10">
-                    <h2 className="font-headline text-5xl md:text-7xl font-extrabold leading-[1.1] tracking-tighter">Yapay Zeka ile <br/> <span className="text-emerald-300 italic">Görünmeyeni Görün.</span></h2>
-                    <p className="text-xl text-white/80 max-w-lg font-medium leading-relaxed">
-                      Karmaşık içerik listelerini, koruyucuları ve gizli şekerleri sizin yerinize biz analiz ediyor, sağlığınızı koruyoruz.
+            <section className="py-24 px-8 max-w-7xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-6 auto-rows-[280px]">
+                <div className="md:col-span-8 bg-surface-container-lowest glass-card rounded-xl p-10 flex flex-col relative overflow-hidden border border-outline-variant/10 group">
+                  <img alt="Sağlıklı yemek tabağı" className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:scale-110 transition-transform duration-700" src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=1400&q=80"/>
+                  <div className="absolute inset-0 bg-gradient-to-r from-surface/95 via-surface/85 to-surface/60"></div>
+
+                  <div className="relative z-10 flex-1 flex flex-col justify-center space-y-3 max-w-md">
+                    <h4 className="font-headline text-2xl md:text-3xl font-bold text-primary leading-tight">
+                      Beslenmenizi Tek <span className="text-secondary italic">Panoda</span> Takip Edin.
+                    </h4>
+                    <p className="text-on-surface-variant text-sm leading-relaxed">
+                      Kalori, makro dengesi ve sağlık puanınız — her öğün sonrası otomatik güncellenir.
                     </p>
-                    <Link to="/register" className="inline-flex items-center gap-3 px-12 py-5 bg-white text-primary rounded-full font-extrabold shadow-[0_20px_40px_rgba(0,0,0,0.2)] hover:scale-105 transition-transform active:scale-95">
-                       Ücretsiz Başlayın
-                       <span className="material-symbols-outlined font-bold">arrow_forward</span>
-                    </Link>
                   </div>
-                  <div className="flex-1 flex justify-center z-10">
-                     <div className="w-72 h-72 md:w-96 md:h-96 rounded-full border-[12px] border-white/5 flex items-center justify-center relative">
-                        <div className="absolute inset-0 bg-white/5 rounded-full animate-pulse"></div>
-                        <span className="material-symbols-outlined text-8xl md:text-[120px] text-white/20" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
-                     </div>
+
+                  <div className="relative z-10 grid grid-cols-3 gap-3 pt-6 max-w-lg">
+                    <div className="bg-surface-container-lowest/85 backdrop-blur-sm rounded-lg p-3 border border-primary/15">
+                      <p className="text-[10px] font-semibold text-on-surface-variant uppercase tracking-wider">Kalori</p>
+                      <p className="font-headline text-lg font-bold text-primary leading-tight">1,840<span className="text-xs text-on-surface-variant font-normal"> / 2,100</span></p>
+                      <div className="h-1 w-full bg-primary/10 rounded-full mt-1.5 overflow-hidden">
+                        <div className="h-full bg-primary w-[87%]"></div>
+                      </div>
+                    </div>
+                    <div className="bg-surface-container-lowest/85 backdrop-blur-sm rounded-lg p-3 border border-secondary/15">
+                      <p className="text-[10px] font-semibold text-on-surface-variant uppercase tracking-wider">Makro</p>
+                      <p className="font-headline text-lg font-bold text-secondary leading-tight">45<span className="text-xs text-on-surface-variant font-normal">K</span> · 25<span className="text-xs text-on-surface-variant font-normal">P</span> · 30<span className="text-xs text-on-surface-variant font-normal">Y</span></p>
+                      <div className="flex gap-0.5 mt-1.5 h-1 rounded-full overflow-hidden">
+                        <div className="bg-primary" style={{ width: '45%' }}></div>
+                        <div className="bg-secondary" style={{ width: '25%' }}></div>
+                        <div className="bg-tertiary" style={{ width: '30%' }}></div>
+                      </div>
+                    </div>
+                    <div className="bg-surface-container-lowest/85 backdrop-blur-sm rounded-lg p-3 border border-tertiary/15">
+                      <p className="text-[10px] font-semibold text-on-surface-variant uppercase tracking-wider">Sağlık Puanı</p>
+                      <p className="font-headline text-lg font-bold text-tertiary leading-tight">85<span className="text-xs text-on-surface-variant font-normal"> / 100</span></p>
+                      <div className="h-1 w-full bg-tertiary/10 rounded-full mt-1.5 overflow-hidden">
+                        <div className="h-full bg-tertiary w-[85%]"></div>
+                      </div>
+                    </div>
                   </div>
-               </div>
+                </div>
+
+                <div className="md:col-span-4 bg-primary text-on-primary rounded-xl p-10 flex flex-col justify-between relative overflow-hidden">
+                  <span className="material-symbols-outlined text-7xl opacity-20 absolute -bottom-4 -right-4" style={{ fontVariationSettings: "'FILL' 1" }}>monitoring</span>
+                  <div className="flex items-center gap-2 relative z-10">
+                    <span className="px-2.5 py-1 bg-white/15 backdrop-blur-sm rounded-full text-[10px] font-bold tracking-wider">0 – 100</span>
+                  </div>
+                  <div className="space-y-3 relative z-10">
+                    <h4 className="font-headline text-2xl font-bold">Sağlık Puanı</h4>
+                    <p className="text-on-primary/85 font-body text-sm leading-relaxed">
+                      Kalori dengesi, makro dağılımı, gıda kalitesi, çeşitlilik ve güvenlik — hepsi tek bir günlük skorda. 7 günlük trendinizi takip edin.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="md:col-span-4 bg-secondary-container text-on-secondary-container rounded-xl p-10 flex flex-col gap-4 overflow-hidden relative">
+                  <span className="absolute top-4 right-4 px-2.5 py-1 bg-on-secondary-container/10 rounded-full text-[10px] font-bold tracking-wider">YAKINDA</span>
+                  <span className="material-symbols-outlined text-5xl opacity-90">restaurant_menu</span>
+                  <h4 className="font-headline text-xl font-bold">Kişiselleştirilmiş Menü</h4>
+                  <p className="text-sm opacity-80 leading-relaxed">
+                    Profiliniz, alerjenleriniz ve günlük sağlık puanınıza göre size özel tarif önerileri — yakında sizinle.
+                  </p>
+                </div>
+
+                <div className="md:col-span-8 bg-surface-container-high rounded-xl p-10 flex items-center gap-8 relative overflow-hidden group">
+                  <span className="absolute top-4 right-4 px-2.5 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-bold tracking-wider z-10">YAKINDA</span>
+                  <div className="flex-1 space-y-4">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-tertiary-fixed/40 text-on-tertiary-fixed rounded-full text-[11px] font-bold tracking-wider">
+                      <span className="material-symbols-outlined text-sm">diversity_3</span>
+                      TOPLULUK MODÜLÜ
+                    </div>
+                    <h4 className="font-headline text-2xl font-bold text-primary">Birlikte Daha Sağlıklı</h4>
+                    <p className="text-on-surface-variant text-sm leading-relaxed max-w-md">
+                      Diğer MindBite kullanıcılarıyla sağlıklı tarifler paylaşmak, başarı hikayelerinden ilham almak ve haftalık puan sıralamalarını görmek yakında mümkün olacak.
+                    </p>
+                  </div>
+                  <div className="hidden md:block w-1/3 h-full rounded-xl overflow-hidden shadow-lg relative">
+                    <img alt="Topluluk ve sağlıklı yaşam" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-85" src="https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80"/>
+                  </div>
+                </div>
+              </div>
             </section>
           </>
         )}
