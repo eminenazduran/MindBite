@@ -119,6 +119,10 @@ ${JSON.stringify(rawProductData, null, 2)}
         const msg = error?.message || String(error);
         console.error('[analyzeWithGemini] HATA:', msg);
 
+        if (msg === 'NOT_FOOD_PRODUCT' || msg.includes('NOT_FOOD_PRODUCT')) {
+            throw new Error('NOT_FOOD_PRODUCT');
+        }
+
         if (msg.includes('429') || msg.toLowerCase().includes('quota') || msg.toLowerCase().includes('too many')) {
             throw new Error('Yapay zeka limiti doldu. Lütfen 1-2 dakika bekleyip tekrar deneyin.');
         }
