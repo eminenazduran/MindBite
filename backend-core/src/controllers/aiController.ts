@@ -5,7 +5,7 @@ import { ScanHistory } from '../models/ScanHistory';
 import { Food } from '../models/Food';
 
 const getGenAI = (apiKey: string) => new GoogleGenerativeAI(apiKey || '');
-const AI_MODEL = 'gemini-1.5-flash-latest'; // SDK için en güncel isim
+const AI_MODEL = 'gemini-flash-latest'; // REST ile aynı isim yapıldı
 
 // 503/429 hatalarında otomatik retry
 async function withRetry<T>(fn: () => Promise<T>, retries = 3, delayMs = 3000): Promise<T> {
