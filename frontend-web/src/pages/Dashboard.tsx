@@ -333,78 +333,7 @@ export default function Dashboard() {
         <HealthScoreBreakdownRow breakdown={healthScore.today.breakdown} />
       )}
 
-      {/* ── 5. AI INTELLIGENCE CENTER ─── */}
-      <section className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* AI Beslenme Analizi (Main Card) */}
-        <div className="lg:col-span-8 group">
-          <div className="bg-surface-container-high/40 backdrop-blur-xl border border-primary/10 rounded-[2.5rem] p-8 shadow-sm hover:shadow-md transition-all duration-500 h-full flex flex-col relative overflow-hidden">
-            {/* Arka plan süsü */}
-            <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/10 transition-colors"></div>
-            
-            <div className="relative z-10 space-y-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
-                  <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-primary uppercase tracking-[0.2em]">Yapay Zeka Analizi</h3>
-                  <p className="text-[10px] text-on-surface-variant font-bold opacity-60">VERİLERİN GERÇEK ZAMANLI İŞLENİYOR</p>
-                </div>
-              </div>
-
-              <blockquote className="text-xl md:text-2xl font-headline font-semibold text-on-surface leading-snug">
-                <span className="text-primary/40 text-4xl font-serif absolute -left-2 -top-2">"</span>
-                {advice?.summary || 'Taramaların yapay zeka tarafından analiz ediliyor. Bugün neler yediğini merak ediyorum!'}
-                <span className="text-primary/40 text-4xl font-serif ml-1">"</span>
-              </blockquote>
-
-              {advice?.recommendations?.length > 0 && (
-                <div className="space-y-3 pt-2">
-                  {advice.recommendations.slice(0, 3).map((rec: string, i: number) => (
-                    <div key={i} className="flex gap-3 items-start p-3 rounded-2xl bg-surface-container-highest/50 border border-white/5 group/item hover:bg-surface-container-highest transition-colors">
-                      <span className="material-symbols-outlined text-primary text-sm mt-0.5">verified</span>
-                      <p className="text-sm text-on-surface-variant font-medium leading-relaxed">{rec}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Günün Tavsiyesi (Side Card) */}
-        <div className="lg:col-span-4">
-          <div className="bg-primary text-white rounded-[2.5rem] p-8 shadow-xl h-full flex flex-col relative overflow-hidden">
-            {/* Arka plan süsü */}
-            <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-white/5 rounded-full blur-2xl"></div>
-            
-            <div className="relative z-10 flex flex-col h-full">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center">
-                  <span className="material-symbols-outlined text-white text-xl">lightbulb</span>
-                </div>
-                <h3 className="text-lg font-headline font-bold">Günün Tavsiyesi</h3>
-              </div>
-
-              <div className="flex-1 space-y-5">
-                {(advice?.tips || ['Öğünlerini girmeye devam et, senin için en iyi tavsiyeleri hazırlayalım!']).slice(0, 3).map((tip: string, i: number) => (
-                  <div key={i} className="flex gap-4 items-start group/tip">
-                    <div className="w-1.5 h-6 bg-white/30 rounded-full mt-0.5 group-hover/tip:bg-white transition-colors" />
-                    <p className="text-sm font-medium leading-relaxed text-white/90 italic">{tip}</p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-8 pt-6 border-t border-white/10">
-                <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-white/60">
-                  <span>Diyetisyen Modu</span>
-                  <span>AKTİF</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* AI INTELLIGENCE CENTER - Moved to Landing.tsx */}
 
       {/* ── 6. BUGÜNKÜ TÜKETİMLER (sadece consumed) ───────────── */}
       <section className="space-y-3">
