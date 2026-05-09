@@ -17,6 +17,7 @@ export default function Dashboard() {
   const [unit, setUnit] = useState<string>('porsiyon');
   const [logging, setLogging] = useState(false);
   const [showWeeklyReport, setShowWeeklyReport] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(true); // Tüketim geçmişi açık/kapalı state'i
 
   const UNIT_OPTIONS: Array<{ value: string; label: string }> = [
     { value: 'porsiyon', label: 'Porsiyon' },
@@ -332,27 +333,38 @@ export default function Dashboard() {
         <HealthScoreBreakdownRow breakdown={healthScore.today.breakdown} />
       )}
 
-      {/* ── 5. AI ANALİZ (col-8) + GÜNÜN TAVSİYESİ (col-4) ─── */}
+      {/* ── 5. AI INTELLIGENCE CENTER ─── */}
       <section className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div className="lg:col-span-8">
-          <div className="bg-gradient-to-br from-primary to-primary-container p-7 rounded-3xl text-white shadow-lg relative overflow-hidden h-full">
-            <div className="absolute -bottom-10 -right-10 opacity-10">
-              <span className="material-symbols-outlined text-[150px]">psychology</span>
-            </div>
-            <div className="relative z-10 space-y-3 h-full flex flex-col">
-              <div className="flex items-center gap-2 text-white/80 font-bold uppercase tracking-widest text-xs">
-                <span className="material-symbols-outlined text-sm">auto_awesome</span>
-                AI Beslenme Analizi
+        {/* AI Beslenme Analizi (Main Card) */}
+        <div className="lg:col-span-8 group">
+          <div className="bg-surface-container-high/40 backdrop-blur-xl border border-primary/10 rounded-[2.5rem] p-8 shadow-sm hover:shadow-md transition-all duration-500 h-full flex flex-col relative overflow-hidden">
+            {/* Arka plan süsü */}
+            <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/10 transition-colors"></div>
+            
+            <div className="relative z-10 space-y-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+                  <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-primary uppercase tracking-[0.2em]">Yapay Zeka Analizi</h3>
+                  <p className="text-[10px] text-on-surface-variant font-bold opacity-60">VERİLERİN GERÇEK ZAMANLI İŞLENİYOR</p>
+                </div>
               </div>
-              <p className="text-lg md:text-xl font-headline font-bold leading-relaxed italic">
-                "{advice?.summary || 'Taramaların yapay zeka tarafından analiz ediliyor. Bugün neler yediğini merak ediyorum!'}"
-              </p>
+
+              <blockquote className="text-xl md:text-2xl font-headline font-semibold text-on-surface leading-snug">
+                <span className="text-primary/40 text-4xl font-serif absolute -left-2 -top-2">"</span>
+                {advice?.summary || 'Taramaların yapay zeka tarafından analiz ediliyor. Bugün neler yediğini merak ediyorum!'}
+                <span className="text-primary/40 text-4xl font-serif ml-1">"</span>
+              </blockquote>
+
               {advice?.recommendations?.length > 0 && (
-                <div className="flex flex-wrap gap-2 pt-2 mt-auto">
-                  {advice.recommendations.slice(0, 4).map((tag: string, i: number) => (
-                    <span key={i} className="px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-[11px] font-bold border border-white/10 text-white/90">
-                      #{tag}
-                    </span>
+                <div className="space-y-3 pt-2">
+                  {advice.recommendations.slice(0, 3).map((rec: string, i: number) => (
+                    <div key={i} className="flex gap-3 items-start p-3 rounded-2xl bg-surface-container-highest/50 border border-white/5 group/item hover:bg-surface-container-highest transition-colors">
+                      <span className="material-symbols-outlined text-primary text-sm mt-0.5">verified</span>
+                      <p className="text-sm text-on-surface-variant font-medium leading-relaxed">{rec}</p>
+                    </div>
                   ))}
                 </div>
               )}
@@ -360,100 +372,127 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {/* Günün Tavsiyesi (Side Card) */}
         <div className="lg:col-span-4">
-          <section className="bg-emerald-950 text-emerald-50 p-6 rounded-3xl border border-emerald-800 shadow-xl space-y-4 h-full">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-emerald-400/20 flex items-center justify-center">
-                <span className="material-symbols-outlined text-emerald-400">lightbulb</span>
+          <div className="bg-primary text-white rounded-[2.5rem] p-8 shadow-xl h-full flex flex-col relative overflow-hidden">
+            {/* Arka plan süsü */}
+            <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-white/5 rounded-full blur-2xl"></div>
+            
+            <div className="relative z-10 flex flex-col h-full">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center">
+                  <span className="material-symbols-outlined text-white text-xl">lightbulb</span>
+                </div>
+                <h3 className="text-lg font-headline font-bold">Günün Tavsiyesi</h3>
               </div>
-              <h3 className="text-base font-headline font-bold">Günün Tavsiyesi</h3>
+
+              <div className="flex-1 space-y-5">
+                {(advice?.tips || ['Öğünlerini girmeye devam et, senin için en iyi tavsiyeleri hazırlayalım!']).slice(0, 3).map((tip: string, i: number) => (
+                  <div key={i} className="flex gap-4 items-start group/tip">
+                    <div className="w-1.5 h-6 bg-white/30 rounded-full mt-0.5 group-hover/tip:bg-white transition-colors" />
+                    <p className="text-sm font-medium leading-relaxed text-white/90 italic">{tip}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-8 pt-6 border-t border-white/10">
+                <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-white/60">
+                  <span>Diyetisyen Modu</span>
+                  <span>AKTİF</span>
+                </div>
+              </div>
             </div>
-            <ul className="space-y-3">
-              {(advice?.tips || ['Öğünlerini girmeye devam et, analiz yapalım!']).slice(0, 3).map((tip: string, i: number) => (
-                <li key={i} className="text-xs leading-relaxed flex gap-2 opacity-90">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1.5 flex-shrink-0" />
-                  {tip}
-                </li>
-              ))}
-            </ul>
-          </section>
+          </div>
         </div>
       </section>
 
       {/* ── 6. BUGÜNKÜ TÜKETİMLER (sadece consumed) ───────────── */}
       <section className="space-y-3">
-        <div className="flex justify-between items-center px-1">
-          <h2 className="text-xl font-headline font-bold text-on-surface">Bugünkü Tüketimler</h2>
-          <Link to="/analysis" className="text-primary font-bold text-sm hover:underline flex items-center gap-1">
+        <div 
+          className="flex justify-between items-center px-1 cursor-pointer group"
+          onClick={() => setIsHistoryOpen(!isHistoryOpen)}
+        >
+          <div className="flex items-center gap-2">
+            <h2 className="text-xl font-headline font-bold text-on-surface">Bugünkü Tüketimler</h2>
+            <span className={`material-symbols-outlined text-primary transition-transform duration-300 ${isHistoryOpen ? 'rotate-180' : ''}`}>
+              expand_more
+            </span>
+          </div>
+          <Link to="/analysis" className="text-primary font-bold text-sm hover:underline flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
             <span className="material-symbols-outlined text-base">history</span>
             Tarama Geçmişi
           </Link>
         </div>
-        {consumedToday.length === 0 ? (
-          <div className="glass-card p-10 rounded-3xl text-center border-dashed border-2 border-outline-variant/30">
-            <span className="material-symbols-outlined text-on-surface-variant/50 text-5xl">restaurant</span>
-            <p className="text-on-surface-variant font-medium mt-2">Bugün henüz tüketim kaydı yok.</p>
-            <p className="text-xs text-on-surface-variant/70 mt-1">
-              Yukarıdan hızlı öğün ekleyebilir ya da <Link to="/analysis" className="text-primary font-bold underline">ürün tarayıp</Link> "Tükettim" diyebilirsin.
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {consumedToday.slice(0, 6).map((scan: any) => {
-              const isHighRisk = scan.analysisResult?.safeToConsume === false;
-              const factor = (scan.servingSize || 100) / 100;
-              const totalKcal = Math.round((scan.foodId?.calories || 0) * factor);
 
-              return (
-                <div
-                  key={scan._id}
-                  className="p-4 rounded-2xl border bg-surface-container-lowest/70 border-primary/10 hover:border-primary/30 transition-all flex items-center justify-between gap-3 shadow-sm"
-                >
-                  <div className="flex items-center gap-3 min-w-0 flex-1">
-                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${isHighRisk ? 'bg-error/10 text-error' : 'bg-primary/10 text-primary'
-                      }`}>
-                      <span className="material-symbols-outlined text-xl">
-                        {scan.foodId?.isGeneric ? 'restaurant' : 'inventory_2'}
-                      </span>
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h4 className="font-bold text-on-surface text-sm line-clamp-1">{scan.foodId?.productName}</h4>
-                        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-primary/10 text-primary text-[9px] font-extrabold uppercase tracking-wider">
-                          <span className="material-symbols-outlined text-[11px]">check</span>
-                          Tüketildi
-                        </span>
+        {isHistoryOpen && (
+          <div className="transition-all duration-300 ease-in-out overflow-hidden">
+            {consumedToday.length === 0 ? (
+              <div className="glass-card p-10 rounded-3xl text-center border-dashed border-2 border-outline-variant/30">
+                <span className="material-symbols-outlined text-on-surface-variant/50 text-5xl">restaurant</span>
+                <p className="text-on-surface-variant font-medium mt-2">Bugün henüz tüketim kaydı yok.</p>
+                <p className="text-xs text-on-surface-variant/70 mt-1">
+                  Yukarıdan hızlı öğün ekleyebilir ya da <Link to="/analysis" className="text-primary font-bold underline">ürün tarayıp</Link> "Tükettim" diyebilirsin.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {consumedToday.slice(0, 8).map((scan: any) => {
+                  const isHighRisk = scan.analysisResult?.safeToConsume === false;
+                  const factor = (scan.servingSize || 100) / 100;
+                  const totalKcal = Math.round((scan.foodId?.calories || 0) * factor);
+
+                  return (
+                    <div
+                      key={scan._id}
+                      className="p-4 rounded-2xl border bg-surface-container-lowest/70 border-primary/10 hover:border-primary/30 transition-all flex items-center justify-between gap-3 shadow-sm"
+                    >
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                        <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${isHighRisk ? 'bg-error/10 text-error' : 'bg-primary/10 text-primary'
+                          }`}>
+                          <span className="material-symbols-outlined text-xl">
+                            {scan.foodId?.isGeneric ? 'restaurant' : 'inventory_2'}
+                          </span>
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h4 className="font-bold text-on-surface text-sm line-clamp-1">{scan.foodId?.productName}</h4>
+                            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-primary/10 text-primary text-[9px] font-extrabold uppercase tracking-wider">
+                              <span className="material-symbols-outlined text-[11px]">check</span>
+                              Tüketildi
+                            </span>
+                          </div>
+                          <p className="text-[10px] text-on-surface-variant font-bold uppercase tracking-tight mt-0.5">
+                            {new Date(scan.createdAt).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                            {' · '}{scan.servingSize || 100}g
+                          </p>
+                        </div>
                       </div>
-                      <p className="text-[10px] text-on-surface-variant font-bold uppercase tracking-tight mt-0.5">
-                        {new Date(scan.createdAt).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
-                        {' · '}{scan.servingSize || 100}g
-                      </p>
-                    </div>
-                  </div>
 
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <div className="text-right">
-                      <span className="text-sm font-extrabold text-primary">{totalKcal}</span>
-                      <span className="text-[10px] font-bold text-on-surface-variant ml-0.5">KCAL</span>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <div className="text-right">
+                          <span className="text-sm font-extrabold text-primary">{totalKcal}</span>
+                          <span className="text-[10px] font-bold text-on-surface-variant ml-0.5">KCAL</span>
+                        </div>
+                        <button
+                          onClick={() => handleUnmarkConsumed(scan._id)}
+                          className="w-8 h-8 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface-variant flex items-center justify-center transition"
+                          title="Tüketim kaydını geri al"
+                        >
+                          <span className="material-symbols-outlined text-base">undo</span>
+                        </button>
+                        <button
+                          onClick={() => handleDeleteScan(scan._id)}
+                          className="w-8 h-8 rounded-lg bg-transparent hover:bg-error/10 text-on-surface-variant hover:text-error flex items-center justify-center transition"
+                          title="Geçmişten sil"
+                        >
+                          <span className="material-symbols-outlined text-base">delete</span>
+                        </button>
+                      </div>
                     </div>
-                    <button
-                      onClick={() => handleUnmarkConsumed(scan._id)}
-                      className="w-8 h-8 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface-variant flex items-center justify-center transition"
-                      title="Tüketim kaydını geri al"
-                    >
-                      <span className="material-symbols-outlined text-base">undo</span>
-                    </button>
-                    <button
-                      onClick={() => handleDeleteScan(scan._id)}
-                      className="w-8 h-8 rounded-lg bg-transparent hover:bg-error/10 text-on-surface-variant hover:text-error flex items-center justify-center transition"
-                      title="Geçmişten sil"
-                    >
-                      <span className="material-symbols-outlined text-base">delete</span>
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
       </section>
