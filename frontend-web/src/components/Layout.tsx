@@ -28,8 +28,8 @@ const AVATAR_MAP: Record<string, { emoji: string; bg: string }> = {
   leaf: { emoji: '🍃', bg: '#95D5B2' }, diamond: { emoji: '💎', bg: '#A2D2FF' },
 };
 
-function AvatarCircle({ avatar, initials, size = 'sm' }: { avatar?: string; initials: string; size?: 'sm' | 'md' }) {
-  const cls = size === 'md' ? 'w-11 h-11 text-lg' : 'w-10 h-10 text-sm';
+function AvatarCircle({ avatar, initials, size = 'sm' }: { avatar?: string; initials: string; size?: 'xs' | 'sm' | 'md' }) {
+  const cls = size === 'md' ? 'w-11 h-11 text-lg' : size === 'xs' ? 'w-7 h-7 text-xs' : 'w-10 h-10 text-sm';
 
   if (avatar && avatar.startsWith('data:')) {
     return <img src={avatar} alt="Avatar" className={`${cls} rounded-full object-cover`} />;
@@ -257,19 +257,29 @@ export default function Layout() {
       <nav className={`md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-6 pb-6 pt-3 bg-surface/85 backdrop-blur-2xl z-50 rounded-t-[3rem] shadow-[0_-16px_48px_rgba(0,0,0,0.06)] border-t border-outline-variant/20 ${!user ? 'hidden' : ''}`}>
         <Link className="flex flex-col items-center justify-center text-on-surface-variant px-5 py-2 hover:text-primary" to="/">
           <span className="material-symbols-outlined">home</span>
-          <span className="font-['Inter'] text-[10px] font-medium">Ana Sayfa</span>
+          <span className="font-['Inter'] text-[10px] font-medium mt-1">Ana Sayfa</span>
         </Link>
         <Link className="flex flex-col items-center justify-center text-on-surface-variant px-5 py-2 hover:text-primary" to="/dashboard">
           <span className="material-symbols-outlined">monitoring</span>
-          <span className="font-['Inter'] text-[10px] font-medium">Takip</span>
+          <span className="font-['Inter'] text-[10px] font-medium mt-1">Takip</span>
         </Link>
         <Link className="flex flex-col items-center justify-center text-on-surface-variant px-5 py-2 hover:text-primary" to="/analysis">
           <span className="material-symbols-outlined">analytics</span>
-          <span className="font-['Inter'] text-[10px] font-medium">Analiz</span>
+          <span className="font-['Inter'] text-[10px] font-medium mt-1">Analiz</span>
         </Link>
         <Link className="flex flex-col items-center justify-center text-on-surface-variant px-5 py-2 hover:text-primary" to="/profile">
-          <span className="material-symbols-outlined">person</span>
-          <span className="font-['Inter'] text-[10px] font-medium">Profil</span>
+          <div className="flex items-center justify-center h-6">
+            {user ? (
+              <AvatarCircle 
+                avatar={user.avatar} 
+                initials={(user.name || 'U').split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase()} 
+                size="xs"
+              />
+            ) : (
+              <span className="material-symbols-outlined">person</span>
+            )}
+          </div>
+          <span className="font-['Inter'] text-[10px] font-medium mt-1">Profil</span>
         </Link>
       </nav>
 
