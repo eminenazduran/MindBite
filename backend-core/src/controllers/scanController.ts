@@ -106,6 +106,13 @@ export const scanProduct = async (req: Request, res: Response) => {
     });
 
   } catch (error: any) {
+    console.error('Scan error:', error);
+    if (error.message === 'NOT_FOOD_PRODUCT') {
+      return res.status(400).json({ 
+        status: 'error', 
+        message: 'Görselde veya barkod verisinde gıda ürünü tespit edilemedi. Lütfen ürün etiketini okunaklı bir şekilde tekrar çekin.' 
+      });
+    }
     res.status(500).json({ status: 'error', message: error.message });
   }
 };

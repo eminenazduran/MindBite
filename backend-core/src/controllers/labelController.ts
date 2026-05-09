@@ -90,6 +90,12 @@ export const analyzeLabelOnly = async (req: Request, res: Response) => {
 
   } catch (error: any) {
     console.error('Label analyze error:', error);
+    if (error.message === 'NOT_FOOD_PRODUCT') {
+      return res.status(400).json({ 
+        status: 'error', 
+        message: 'Gıda ürünü tespit edilemedi. Lütfen ürünün içindekiler veya besin tablosu kısmını net çekecek şekilde tekrar deneyin.' 
+      });
+    }
     res.status(500).json({ status: 'error', message: error.message });
   }
 };

@@ -4,6 +4,7 @@ dotenv.config();
 // ─── Tip Tanımları ────────────────────────────────────────────────────────────
 
 export interface FoodAnalysisData {
+    isFoodProduct?: boolean;
     name: string;
     ingredients: string[];
     eCodes: string[];
@@ -78,10 +79,15 @@ export const fetchFromOpenFoodFacts = async (barcode: string) => {
 
 export const analyzeWithGemini = async (rawProductData: any): Promise<FoodAnalysisData> => {
     const prompt = `
-Aşağıdaki gıda ürünü verisini (içindekiler metni veya OCR sonucu) analiz et.
+Aşağıdaki metni (içindekiler veya OCR sonucu) analiz et.
+Öncelikle metnin gerçekten bir gıda ürününe ait bir içerik listesi, besin tablosu veya etiket olup olmadığını kontrol et. 
+Eğer gönderilen metin gıda ile tamamen alakasızsa (örn. manzara fotoğrafı metni, rastgele kelimeler, kitap sayfası) veya hiçbir besin/içindekiler bilgisi içermiyorsa, "isFoodProduct" alanını "false" yap ve diğer alanları boş bırak.
+Eğer bir gıda ürünüyse "isFoodProduct" alanını "true" yap.
+
 SADECE ve SADECE aşağıdaki JSON formatında cevap ver. Markdown kullanma, sadece JSON yaz.
 
 {
+  "isFoodProduct": true,
   "name": "Ürün Adı",
   "ingredients": ["Madde 1", "Madde 2"],
   "eCodes": ["E102", "E385"],
@@ -102,7 +108,13 @@ ${JSON.stringify(rawProductData, null, 2)}
         const text = await callGeminiREST(prompt);
         const jsonMatch = text.match(/\{[\s\S]*\}/);
         if (!jsonMatch) throw new Error("AI geçerli JSON üretemedi.");
-        return JSON.parse(jsonMatch[0]) as FoodAnalysisData;
+        const parsed = JSON.parse(jsonMatch[0]) as FoodAnalysisData;
+        
+        if (parsed.isFoodProduct === false) {
+            throw new Error('NOT_FOOD_PRODUCT');
+        }
+        
+        return parsed;
     } catch (error: any) {
         const msg = error?.message || String(error);
         console.error('[analyzeWithGemini] HATA:', msg);
