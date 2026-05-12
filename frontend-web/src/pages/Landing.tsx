@@ -241,9 +241,10 @@ export default function Landing() {
         )}
       </div>
 
-      {/* 💻 MASAÜSTÜ GÖRÜNÜMÜ (Değiştirilmedi) */}
+      {/* 💻 MASAÜSTÜ GÖRÜNÜMÜ */}
       <div className="hidden md:block">
-        <section className="relative px-8 py-12 md:py-24 max-w-7xl mx-auto overflow-visible">
+        {!isLoggedIn && (
+          <section className="relative px-8 py-12 md:py-24 max-w-7xl mx-auto overflow-visible">
           {/* ... mevcut masaüstü içeriği ... */}
           <div className="flex flex-col md:flex-row items-center gap-16">
             <div className="flex-1 space-y-8 z-10">
@@ -316,7 +317,7 @@ export default function Landing() {
             </div>
           </div>
         </section>
-
+        )}
         {!isLoggedIn && (
           <>
             <section className="bg-surface-container-low py-24 px-8 mt-12 rounded-t-[5rem]">
@@ -502,55 +503,132 @@ export default function Landing() {
         )}
 
         {isLoggedIn && (
-          <section className="bg-surface-container-low py-16 px-8 mt-8 rounded-t-[5rem]">
-            <div className="max-w-7xl mx-auto">
-              <div className="text-center mb-10 space-y-3">
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-bold tracking-wider">
-                  <span className="material-symbols-outlined text-sm">auto_awesome</span>
-                  SİSTEMİ NASIL KULLANIRIM?
+          <section className="max-w-7xl mx-auto px-8 py-10 space-y-8 animate-fade-in">
+            {/* 1. Kompakt Header (Karşılama ve Skor Entegrasyonu) */}
+            <div className="flex flex-col lg:flex-row lg:items-end justify-between border-b border-outline-variant/30 pb-8 gap-6">
+              <div className="space-y-2">
+                <div className="inline-flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-[0.2em]">
+                  <span className="w-8 h-[2px] bg-primary rounded-full"></span>
+                  Kişisel Panel
                 </div>
-                <h2 className="font-headline text-4xl font-bold text-primary tracking-tight">
-                  MindBite ile günlük rutininizi <span className="text-secondary italic">3 adımda</span> yönetin
-                </h2>
+                <h1 className="text-4xl font-black font-headline text-on-surface tracking-tight">
+                  Merhaba, {stats?.user?.name || authUser?.name}
+                </h1>
+                <p className="text-on-surface-variant font-medium max-w-xl">
+                  Hedeflerine ulaşman için bugün harika bir fırsat. Verilerini aşağıda özetledik.
+                </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {[
-                  {
-                    icon: 'barcode_scanner',
-                    title: 'Öğün Ekle',
-                    desc: 'Analiz ekranından barkod tarayın ya da doğal dille öğün girin.',
-                    cta: 'Analize Git',
-                    to: '/analysis',
-                  },
-                  {
-                    icon: 'monitoring',
-                    title: 'Paneli Takip Et',
-                    desc: 'Günlük kalori, makro dağılımı ve sağlık puanınızı anlık izleyin.',
-                    cta: 'Panelime Git',
-                    to: '/dashboard',
-                  },
-                  {
-                    icon: 'insights',
-                    title: 'Raporları Yorumla',
-                    desc: 'Haftalık trend ve AI önerileriyle alışkanlıklarınızı iyileştirin.',
-                    cta: 'Profili Aç',
-                    to: '/profile',
-                  },
-                ].map((item) => (
-                  <div key={item.title} className="bg-surface-container-lowest rounded-2xl border border-primary/10 p-6 shadow-sm">
-                    <div className="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4">
-                      <span className="material-symbols-outlined">{item.icon}</span>
+              <div className="flex items-center gap-4 bg-surface-container-low/60 p-4 pr-6 rounded-2xl border border-outline-variant/20">
+                <div className="w-14 h-14 rounded-full border-2 border-primary/20 flex flex-col items-center justify-center bg-surface-container shadow-sm">
+                  <span className="text-xl font-black text-primary">{stats?.score || 0}</span>
+                  <span className="text-[7px] font-bold text-on-surface-variant uppercase tracking-tighter">Puan</span>
+                </div>
+                <div className="space-y-0.5">
+                  <p className="text-xs font-bold text-on-surface">Günlük Sağlık Puanı</p>
+                  <p className="text-[11px] text-on-surface-variant font-medium">Harika gidiyorsun! 🌟</p>
+                </div>
+              </div>
+            </div>
+
+            {/* 2. Ana İçerik Grid (2 Sütunlu Profesyonel Düzen) */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+              
+              {/* SOL SÜTUN (7/12): Kalori ve AI Analizi */}
+              <div className="lg:col-span-8 space-y-8">
+                
+                {/* Kalori & İlerleme Paneli */}
+                <div className="bg-surface-container-low rounded-3xl p-8 border border-outline-variant/10 shadow-sm relative overflow-hidden">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+                    <div className="space-y-1">
+                      <p className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Bugünkü Kalori</p>
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-5xl font-black font-headline text-primary">
+                           {Math.round(stats?.history?.filter((h: any) => h.consumed && new Date(h.createdAt).setHours(0, 0, 0, 0) === new Date().setHours(0, 0, 0, 0)).reduce((acc: number, h: any) => acc + ((h.foodId?.calories || 0) * (h.servingSize || 100) / 100), 0) || 0)}
+                        </span>
+                        <span className="text-lg font-bold text-on-surface-variant">/ {stats?.user?.calorieGoal || 2000} kcal</span>
+                      </div>
                     </div>
-                    <h3 className="font-headline text-lg font-bold text-on-surface mb-2">{item.title}</h3>
-                    <p className="text-sm text-on-surface-variant leading-relaxed mb-4">{item.desc}</p>
-                    <Link to={item.to} className="inline-flex items-center gap-1 text-sm font-bold text-primary hover:underline">
-                      {item.cta}
-                      <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                    <Link to="/dashboard" className="px-5 py-2.5 bg-primary text-on-primary rounded-xl font-bold text-sm hover:opacity-90 transition-all flex items-center gap-2 shadow-md">
+                      Detayları Gör
+                      <span className="material-symbols-outlined text-sm">trending_up</span>
                     </Link>
                   </div>
-                ))}
+                  
+                  <div className="mt-8 space-y-3 relative z-10">
+                    <div className="flex justify-between text-xs font-bold text-on-surface-variant">
+                      <span>Günlük Hedef</span>
+                      <span>%{Math.round(Math.min(((stats?.history?.reduce((acc: number, h: any) => acc + (h.foodId?.calories || 0), 0) || 0) / (stats?.user?.calorieGoal || 2000)) * 100, 100))}</span>
+                    </div>
+                    <div className="h-2.5 w-full bg-surface-container-high rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-primary rounded-full transition-all duration-1000 shadow-sm"
+                        style={{ width: `${Math.min(((stats?.history?.reduce((acc: number, h: any) => acc + (h.foodId?.calories || 0), 0) || 0) / (stats?.user?.calorieGoal || 2000)) * 100, 100)}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* AI Analiz & Öneriler Bloğu */}
+                <div className="space-y-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                      <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
+                    </div>
+                    <h3 className="text-xl font-bold font-headline">AI Analizi ve Öneriler</h3>
+                  </div>
+
+                  <div className="bg-surface-container-high/20 border border-outline-variant/10 rounded-3xl p-8 space-y-8">
+                    <blockquote className="text-xl font-medium text-on-surface italic leading-relaxed pl-6 border-l-4 border-primary/30">
+                       "{stats?.advice?.summary || 'Beslenme verilerin analiz ediliyor, hedeflerine odaklanmaya devam et!'}"
+                    </blockquote>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {(stats?.advice?.recommendations || []).slice(0, 4).map((rec: string, i: number) => (
+                        <div key={i} className="flex gap-4 items-center p-5 rounded-2xl bg-surface-container-low border border-outline-variant/10 group hover:border-primary/30 transition-colors">
+                          <span className="material-symbols-outlined text-primary text-xl">check_circle</span>
+                          <p className="text-sm text-on-surface-variant font-semibold leading-snug">{rec}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
+
+              {/* SAĞ SÜTUN (4/12): Tavsiyeler ve Bilgi Kartları */}
+              <div className="lg:col-span-4 space-y-8">
+                {/* Günün Tavsiyesi */}
+                <div className="bg-primary-container text-on-primary-container rounded-3xl p-8 relative overflow-hidden shadow-sm">
+                  <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
+                  <div className="relative z-10 space-y-6">
+                    <div className="flex items-center gap-3">
+                      <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>lightbulb</span>
+                      <h4 className="text-lg font-bold font-headline">Günün Tavsiyesi</h4>
+                    </div>
+                    <div className="space-y-5">
+                      {(stats?.advice?.tips || ['Bugün su içmeyi ihmal etme.', 'Öğünlerini planlı tüket.']).slice(0, 3).map((tip: string, i: number) => (
+                        <div key={i} className="flex gap-4 items-start">
+                          <div className="w-1 h-1 rounded-full bg-on-primary-container/40 mt-2 flex-shrink-0" />
+                          <p className="text-sm font-medium leading-relaxed italic opacity-90">{tip}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Hızlı İpucu / Bilgi Notu */}
+                <div className="bg-surface-container-lowest rounded-3xl p-8 border border-outline-variant/20 space-y-4">
+                  <h4 className="text-sm font-bold text-primary uppercase tracking-widest">Biliyor musun?</h4>
+                  <p className="text-sm text-on-surface-variant leading-relaxed font-medium">
+                    Düzenli uyku, vücudunun insülin duyarlılığını artırarak iştah kontrolüne yardımcı olur. Günde 7-8 saat uyumaya özen göster!
+                  </p>
+                  <div className="pt-4 flex justify-between items-center opacity-40">
+                     <span className="material-symbols-outlined">psychology</span>
+                     <span className="text-[10px] font-bold">MİNDBİTE ACADEMY</span>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </section>
         )}

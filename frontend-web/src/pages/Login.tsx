@@ -21,7 +21,7 @@ export default function Login() {
       const res = await loginUser({ email, password });
       if (res.status === 'success') {
         login(res.data.user, res.data.token);
-        navigate('/dashboard');
+        navigate('/');
       } else {
         setError(res.message);
       }

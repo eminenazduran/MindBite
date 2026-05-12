@@ -98,8 +98,8 @@ export default function Register() {
         goal
       });
       if (res.status === 'success') {
-        login(res.data.user, res.data.token);
-        navigate('/dashboard');
+        // login(res.data.user, res.data.token); 
+        navigate('/login', { state: { message: 'Kayıt başarılı! Şimdi giriş yapabilirsiniz.' } });
       } else {
         setError(res.message || 'Kayıt sırasında hata oluştu.');
       }
