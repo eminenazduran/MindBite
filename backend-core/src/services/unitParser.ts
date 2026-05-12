@@ -48,18 +48,18 @@ const UNIT_ALIASES: Array<{ aliases: string[]; unit: UnitKey }> = [
 ];
 
 const UNIT_GRAMS: Record<UnitKey, number> = {
-    yemek_kasigi: 12,
+    yemek_kasigi: 15,
     tatli_kasigi: 6,
     cay_kasigi: 3,
     // Genel ortalama değerler: gıdaya-özel porsiyon yoksa kullanılır.
-    kase: 180,
-    tabak: 220,
+    kase: 200,
+    tabak: 300,
     su_bardagi: 200,
     cay_bardagi: 100,
     dilim: 30,
-    adet: 60,
+    adet: 80,
     avuc: 28,
-    porsiyon: 170,
+    porsiyon: 220,
     gram: 1,
     mililitre: 1
 };

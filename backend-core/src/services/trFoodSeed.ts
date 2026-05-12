@@ -170,7 +170,7 @@ export const TR_FOOD_SEED: TrFoodRef[] = [
         keywords: ['mısır', 'misir', 'haşlanmış mısır'],
         kcal: 96, protein: 3.4, carbohydrates: 21, fat: 1.5,
         category: 'tahil', quality: 0.7,
-        portions: { adet: 150, kase: 160 }
+        portions: { adet: 90, kase: 160 }
     },
 
     // === BAKLAGİLLER ===
@@ -235,9 +235,9 @@ export const TR_FOOD_SEED: TrFoodRef[] = [
     {
         name: 'Menemen',
         keywords: ['menemen'],
-        kcal: 115, protein: 5.5, carbohydrates: 4.2, fat: 8.3,
+        kcal: 100, protein: 5, carbohydrates: 5, fat: 7,
         category: 'protein', quality: 0.8,
-        portions: { porsiyon: 200, kase: 220 }
+        portions: { porsiyon: 250, kase: 220 }
     },
     {
         name: 'Tavuk göğsü (ızgara)',
@@ -258,7 +258,7 @@ export const TR_FOOD_SEED: TrFoodRef[] = [
         keywords: ['köfte', 'kofte'],
         kcal: 215, protein: 16, carbohydrates: 5, fat: 14,
         category: 'protein', quality: 0.7,
-        portions: { adet: 40, porsiyon: 150 }
+        portions: { adet: 60, porsiyon: 180 }
     },
     {
         name: 'Biftek (dana)',
@@ -300,14 +300,14 @@ export const TR_FOOD_SEED: TrFoodRef[] = [
         keywords: ['sucuk'],
         kcal: 463, protein: 23, carbohydrates: 2, fat: 40,
         category: 'protein', quality: 0.35,
-        portions: { dilim: 10, adet: 5 }
+        portions: { dilim: 10, adet: 25 }
     },
     {
         name: 'Salam / Sosis',
         keywords: ['salam', 'sosis'],
         kcal: 301, protein: 13, carbohydrates: 2, fat: 27,
         category: 'protein', quality: 0.3,
-        portions: { dilim: 15, adet: 50 }
+        portions: { dilim: 15, adet: 30 }
     },
 
     // === SEBZELER ===
@@ -363,7 +363,7 @@ export const TR_FOOD_SEED: TrFoodRef[] = [
     {
         name: 'Patates kızartması',
         keywords: ['patates kızartması', 'cips', 'kızarmış patates'],
-        kcal: 312, protein: 3.4, carbohydrates: 41, fat: 15,
+        kcal: 290, protein: 3.4, carbohydrates: 37, fat: 14,
         category: 'sebze', quality: 0.3,
         portions: { porsiyon: 150, adet: 10 }
     },
@@ -437,7 +437,7 @@ export const TR_FOOD_SEED: TrFoodRef[] = [
         keywords: ['karpuz'],
         kcal: 30, protein: 0.6, carbohydrates: 7.6, fat: 0.2,
         category: 'meyve', quality: 0.85,
-        portions: { dilim: 300 }
+        portions: { dilim: 200 }
     },
     {
         name: 'Armut',
@@ -495,9 +495,9 @@ export const TR_FOOD_SEED: TrFoodRef[] = [
     {
         name: 'Mercimek çorbası',
         keywords: ['mercimek çorbası', 'mercimek corbasi'],
-        kcal: 70, protein: 4.2, carbohydrates: 10, fat: 1.6,
+        kcal: 65, protein: 3.5, carbohydrates: 11, fat: 1.5,
         category: 'corba', quality: 0.85,
-        portions: { kase: 220, su_bardagi: 200 }
+        portions: { kase: 245, su_bardagi: 200 }
     },
     {
         name: 'Yayla çorbası',
@@ -532,9 +532,9 @@ export const TR_FOOD_SEED: TrFoodRef[] = [
     {
         name: 'Simit',
         keywords: ['simit'],
-        kcal: 313, protein: 9, carbohydrates: 56, fat: 5.5,
+        kcal: 320, protein: 10.7, carbohydrates: 57, fat: 3.6,
         category: 'hamur_isi', quality: 0.45,
-        portions: { adet: 90 }
+        portions: { adet: 100 }
     },
     {
         name: 'Börek (kıymalı)',
@@ -546,9 +546,9 @@ export const TR_FOOD_SEED: TrFoodRef[] = [
     {
         name: 'Poğaça',
         keywords: ['poğaça', 'pogaca'],
-        kcal: 380, protein: 7, carbohydrates: 45, fat: 18,
+        kcal: 360, protein: 7, carbohydrates: 35, fat: 20,
         category: 'hamur_isi', quality: 0.35,
-        portions: { adet: 80 }
+        portions: { adet: 70 }
     },
     {
         name: 'Açma',
@@ -560,16 +560,16 @@ export const TR_FOOD_SEED: TrFoodRef[] = [
     {
         name: 'Lahmacun',
         keywords: ['lahmacun'],
-        kcal: 252, protein: 10, carbohydrates: 34, fat: 8.5,
+        kcal: 175, protein: 8, carbohydrates: 22, fat: 5,
         category: 'hamur_isi', quality: 0.55,
-        portions: { adet: 150 }
+        portions: { adet: 200 }
     },
     {
         name: 'Pide (kıymalı)',
         keywords: ['pide'],
-        kcal: 265, protein: 11, carbohydrates: 35, fat: 9,
+        kcal: 210, protein: 8.2, carbohydrates: 24.5, fat: 8.5,
         category: 'hamur_isi', quality: 0.5,
-        portions: { porsiyon: 250, dilim: 80 }
+        portions: { porsiyon: 170, dilim: 40 }
     },
     {
         name: 'Pizza',
@@ -583,16 +583,16 @@ export const TR_FOOD_SEED: TrFoodRef[] = [
     {
         name: 'Baklava',
         keywords: ['baklava'],
-        kcal: 430, protein: 6, carbohydrates: 45, fat: 25,
+        kcal: 412, protein: 4.5, carbohydrates: 49, fat: 21.5,
         category: 'tatli', quality: 0.2,
-        portions: { dilim: 60, adet: 50 }
+        portions: { dilim: 40, adet: 40, porsiyon: 120 }
     },
     {
         name: 'Sütlaç',
         keywords: ['sütlaç', 'sutlac'],
         kcal: 125, protein: 3.5, carbohydrates: 21, fat: 2.5,
         category: 'tatli', quality: 0.5,
-        portions: { kase: 200 }
+        portions: { kase: 150 }
     },
     {
         name: 'Muhallebi',
@@ -604,9 +604,9 @@ export const TR_FOOD_SEED: TrFoodRef[] = [
     {
         name: 'Künefe',
         keywords: ['künefe', 'kunefe'],
-        kcal: 330, protein: 8, carbohydrates: 40, fat: 16,
+        kcal: 355, protein: 6.1, carbohydrates: 46, fat: 17,
         category: 'tatli', quality: 0.25,
-        portions: { porsiyon: 150 }
+        portions: { porsiyon: 120 }
     },
     {
         name: 'Kadayıf',
@@ -627,7 +627,7 @@ export const TR_FOOD_SEED: TrFoodRef[] = [
         keywords: ['dondurma'],
         kcal: 207, protein: 3.5, carbohydrates: 24, fat: 11,
         category: 'tatli', quality: 0.35,
-        portions: { porsiyon: 60, kase: 150 }
+        portions: { porsiyon: 100, kase: 150 }
     },
     {
         name: 'Çikolata (sütlü)',
@@ -639,7 +639,7 @@ export const TR_FOOD_SEED: TrFoodRef[] = [
     {
         name: 'Bisküvi',
         keywords: ['bisküvi', 'biskuvi'],
-        kcal: 450, protein: 6, carbohydrates: 65, fat: 18,
+        kcal: 470, protein: 6, carbohydrates: 70, fat: 17,
         category: 'tatli', quality: 0.25,
         portions: { adet: 10 }
     },
@@ -692,7 +692,7 @@ export const TR_FOOD_SEED: TrFoodRef[] = [
     {
         name: 'Döner (et)',
         keywords: ['döner', 'doner', 'et döner'],
-        kcal: 232, protein: 17, carbohydrates: 9, fat: 15,
+        kcal: 250, protein: 22, carbohydrates: 2, fat: 17,
         category: 'protein', quality: 0.6,
         portions: { porsiyon: 200, dilim: 20 }
     },
@@ -713,7 +713,7 @@ export const TR_FOOD_SEED: TrFoodRef[] = [
     {
         name: 'Mantı',
         keywords: ['mantı', 'manti'],
-        kcal: 210, protein: 9, carbohydrates: 28, fat: 7,
+        kcal: 170, protein: 4.1, carbohydrates: 30, fat: 3.5,
         category: 'hamur_isi', quality: 0.55,
         portions: { porsiyon: 200, kase: 220 }
     }
