@@ -10,7 +10,7 @@ interface Message {
 
 const SUGGESTIONS = [
   'Bugün ne yemeliyim?',
-  'Proteini nasıl artırabilirim?',
+  'Proteinimi nasıl artırabilirim?',
   'Hangi atıştırmalıklar sağlıklı?',
   'Kilo vermek için ipuçları ver',
 ];
@@ -106,9 +106,8 @@ export default function AiChat() {
 
       {/* Chat Panel */}
       <div
-        className={`fixed left-3 right-3 bottom-[calc(10rem+env(safe-area-inset-bottom))] md:left-auto md:right-6 md:bottom-24 z-50 w-auto md:w-full md:max-w-sm flex flex-col bg-surface rounded-3xl shadow-2xl border border-outline-variant/20 overflow-hidden transition-all duration-300 origin-bottom-right ${
-          open ? 'scale-100 opacity-100 pointer-events-auto' : 'scale-95 opacity-0 pointer-events-none'
-        }`}
+        className={`fixed left-3 right-3 bottom-[calc(10rem+env(safe-area-inset-bottom))] md:left-auto md:right-6 md:bottom-24 z-50 w-auto md:w-full md:max-w-sm flex flex-col bg-surface rounded-3xl shadow-2xl border border-outline-variant/20 overflow-hidden transition-all duration-300 origin-bottom-right ${open ? 'scale-100 opacity-100 pointer-events-auto' : 'scale-95 opacity-0 pointer-events-none'
+          }`}
         style={{ maxHeight: '75vh' }}
       >
         {/* Header */}
@@ -148,11 +147,10 @@ export default function AiChat() {
                 </div>
               )}
               <div
-                className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${
-                  msg.role === 'user'
-                    ? 'bg-primary text-white rounded-tr-sm'
-                    : 'bg-surface-container-low text-on-surface rounded-tl-sm border border-outline-variant/15'
-                }`}
+                className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${msg.role === 'user'
+                  ? 'bg-primary text-white rounded-tr-sm'
+                  : 'bg-surface-container-low text-on-surface rounded-tl-sm border border-outline-variant/15'
+                  }`}
               >
                 {msg.content}
               </div>
