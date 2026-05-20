@@ -68,9 +68,18 @@ export default function WeeklyReport({ onClose }: WeeklyReportProps) {
   }
 
   const { totals, averages, calorieGoal, ai, dailySummary, riskCount, period } = report;
-  const caloriePercent = Math.round((averages.calories / calorieGoal) * 100);
+
+  const safeVal = (val: any, decimals: number = 0) => {
+    const num = parseFloat(val);
+    if (isNaN(num)) return '0';
+    return decimals === 0 ? Math.round(num).toString() : num.toFixed(decimals);
+  };
+
+  const calorieGoalVal = calorieGoal || 2000;
+  const avgCaloriesVal = parseFloat(averages.calories) || 0;
+  const caloriePercent = calorieGoalVal > 0 ? Math.round((avgCaloriesVal / calorieGoalVal) * 100) : 0;
   const calorieColor = caloriePercent < 70 ? 'text-error' : caloriePercent > 115 ? 'text-tertiary' : 'text-primary';
-  const scoreColor = ai.overallScore >= 8 ? '#10b981' : ai.overallScore >= 5 ? '#f59e0b' : '#ef4444';
+  const scoreColor = (ai.overallScore || 0) >= 8 ? '#10b981' : (ai.overallScore || 0) >= 5 ? '#f59e0b' : '#ef4444';
 
   return (
     <div className="space-y-6">
@@ -126,10 +135,10 @@ export default function WeeklyReport({ onClose }: WeeklyReportProps) {
       {/* ── Özet Kartları ── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { icon: 'bolt', color: 'text-primary', label: 'Ort. Kalori', value: `${averages.calories}`, unit: 'kcal/gün', sub: `${caloriePercent}% hedef`, subColor: calorieColor },
-          { icon: 'fitness_center', color: 'text-secondary', label: 'Ort. Protein', value: averages.protein, unit: 'g/gün', sub: `Toplam: ${parseFloat(totals.protein).toFixed(0)}g`, subColor: 'text-on-surface-variant' },
-          { icon: 'bakery_dining', color: 'text-tertiary', label: 'Ort. Karbonhidrat', value: averages.carbs, unit: 'g/gün', sub: `Toplam: ${parseFloat(totals.carbs).toFixed(0)}g`, subColor: 'text-on-surface-variant' },
-          { icon: 'opacity', color: 'text-error', label: 'Ort. Yağ', value: averages.fat, unit: 'g/gün', sub: riskCount > 0 ? `${riskCount} riskli ürün` : 'Risk yok ✓', subColor: riskCount > 0 ? 'text-error' : 'text-primary' }
+          { icon: 'bolt', color: 'text-primary', label: 'Ort. Kalori', value: safeVal(averages.calories), unit: 'kcal/gün', sub: `${caloriePercent}% hedef`, subColor: calorieColor },
+          { icon: 'fitness_center', color: 'text-secondary', label: 'Ort. Protein', value: safeVal(averages.protein, 1), unit: 'g/gün', sub: `Toplam: ${safeVal(totals.protein)}g`, subColor: 'text-on-surface-variant' },
+          { icon: 'bakery_dining', color: 'text-tertiary', label: 'Ort. Karbonhidrat', value: safeVal(averages.carbs, 1), unit: 'g/gün', sub: `Toplam: ${safeVal(totals.carbs)}g`, subColor: 'text-on-surface-variant' },
+          { icon: 'opacity', color: 'text-error', label: 'Ort. Yağ', value: safeVal(averages.fat, 1), unit: 'g/gün', sub: riskCount > 0 ? `${riskCount} riskli ürün` : 'Risk yok ✓', subColor: riskCount > 0 ? 'text-error' : 'text-primary' }
         ].map(card => (
           <div key={card.label} className="glass-card p-4 rounded-2xl border border-outline-variant/15 text-center shadow-sm">
             <span className={`material-symbols-outlined text-2xl mb-1 ${card.color}`}>{card.icon}</span>

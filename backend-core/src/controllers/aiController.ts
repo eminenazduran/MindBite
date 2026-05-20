@@ -169,10 +169,10 @@ export const weeklyReport = async (req: Request, res: Response) => {
 
       const day = new Date(scan.consumedAt).toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'short' });
       const ratio = scan.servingSize / 100;
-      const cal = Math.round(food.calories * ratio);
-      const prot = food.protein * ratio;
-      const carb = food.carbohydrates * ratio;
-      const fat = food.fat * ratio;
+      const cal = Math.round((food.calories || 0) * ratio);
+      const prot = (food.protein || 0) * ratio;
+      const carb = (food.carbohydrates || 0) * ratio;
+      const fat = (food.fat || 0) * ratio;
 
       if (!dailyTotals[day]) dailyTotals[day] = { calories: 0, protein: 0, carbs: 0, fat: 0, products: [] };
       dailyTotals[day].calories += cal;
@@ -192,10 +192,20 @@ export const weeklyReport = async (req: Request, res: Response) => {
     });
 
     const dayCount = Object.keys(dailyTotals).length;
+    if (dayCount === 0) {
+      return res.status(200).json({
+        status: 'success',
+        data: {
+          hasData: false,
+          message: 'Haftalık rapor için en az 1 tüketim kaydı gerekiyor. Ürün tarayıp "Tükettim" butonuna basarak başlayabilirsin!'
+        }
+      });
+    }
+
     const avgCalories = Math.round(totalCalories / dayCount);
-    const avgProtein = (totalProtein / dayCount).toFixed(1);
-    const avgCarbs = (totalCarbs / dayCount).toFixed(1);
-    const avgFat = (totalFat / dayCount).toFixed(1);
+    const avgProtein = dayCount > 0 ? (totalProtein / dayCount).toFixed(1) : '0.0';
+    const avgCarbs = dayCount > 0 ? (totalCarbs / dayCount).toFixed(1) : '0.0';
+    const avgFat = dayCount > 0 ? (totalFat / dayCount).toFixed(1) : '0.0';
     const calorieGoal = (user as any).calorieGoal || 2000;
 
     // Günlük özet tablosu

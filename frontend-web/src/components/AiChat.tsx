@@ -10,7 +10,7 @@ interface Message {
 
 const SUGGESTIONS = [
   'Bugün ne yemeliyim?',
-  'Proteinimyi nasıl artırabilirim?',
+  'Proteini nasıl artırabilirim?',
   'Hangi atıştırmalıklar sağlıklı?',
   'Kilo vermek için ipuçları ver',
 ];

@@ -757,7 +757,7 @@ export default function Analysis() {
                         onClick={resetAll}
                         className="px-5 py-2.5 rounded-xl text-sm font-bold text-on-surface-variant border border-outline-variant/40 hover:bg-surface-container-high transition"
                       >
-                        Yedimedim
+                        Yemedim
                       </button>
                       <button
                         onClick={handleConsume}
