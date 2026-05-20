@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { registerUser } from '../api';
-import { useAuth } from '../context/AuthContext';
 
 type Gender = 'female' | 'male' | 'other';
 type ActivityLevel = 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active';
@@ -28,7 +27,6 @@ const ACTIVITY_FACTOR: Record<ActivityLevel, number> = {
 
 export default function Register() {
   const navigate = useNavigate();
-  const { login } = useAuth();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

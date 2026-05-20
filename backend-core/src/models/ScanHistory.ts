@@ -43,11 +43,16 @@ const scanHistorySchema: Schema = new Schema(
   }
 );
 
-// TTL index: "Tüketmedim" işaretlenen kayıtlar 24 saat sonra otomatik silinir.
-// dismissedAt null olan kayıtlar etkilenmez (MongoDB TTL'de partial filter).
+// TTL index: Tüketilmemiş (Bekleyen veya Tüketmedim) kayıtlar 24 saat sonra otomatik silinir.
 scanHistorySchema.index(
-  { dismissedAt: 1 },
-  { expireAfterSeconds: 86400, partialFilterExpression: { dismissedAt: { $type: 'date' } } }
+  { createdAt: 1 },
+  { expireAfterSeconds: 86400, partialFilterExpression: { consumed: false } }
+);
+
+// TTL index: Tüketilmiş kayıtlar 7 gün sonra otomatik silinir (haftalık raporlar için saklanır).
+scanHistorySchema.index(
+  { consumedAt: 1 },
+  { expireAfterSeconds: 604800, partialFilterExpression: { consumed: true } }
 );
 
 export const ScanHistory = mongoose.model<IScanHistory>('ScanHistory', scanHistorySchema);

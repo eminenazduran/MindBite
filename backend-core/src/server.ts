@@ -15,6 +15,10 @@ const startServer = async () => {
       // MongoDB'ye Bağlan
       await mongoose.connect(MONGODB_URI);
       console.log('✅ MongoDB veritabanına başarıyla bağlanıldı.');
+
+      // İndeksleri şemalarla senkronize et (eski TTL indekslerini temizler)
+      await mongoose.connection.syncIndexes();
+      console.log('✅ MongoDB indeksleri başarıyla senkronize edildi.');
     }
 
     // Sunucuyu Dinlemeye Başla

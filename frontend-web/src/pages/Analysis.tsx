@@ -34,7 +34,6 @@ export default function Analysis() {
   const [consuming, setConsuming] = useState(false);
 
   // Label (etiket) tarama modu
-  const [labelText, setLabelText] = useState('');
   const [labelOcrOpen, setLabelOcrOpen] = useState(false);
 
   // AI öneri paneli
@@ -126,7 +125,6 @@ export default function Analysis() {
     setServingSize(100);
     setNeedsOcr(false);
     setOcrText('');
-    setLabelText('');
     setAnalysisResult(null);
     setError(null);
     setSearchResults([]);
@@ -136,33 +134,6 @@ export default function Analysis() {
     setAiRecommendation(null);
   };
 
-  // Barkodsuz etiket/içerik analizi
-  const handleLabelAnalyze = async () => {
-    if (!labelText.trim() || !user) return;
-    setLoading(true);
-    setError(null);
-    setAnalysisResult(null);
-    setAiRecommendation(null);
-    try {
-      const res = await analyzeLabelOnly(labelText, servingSize);
-      if (res.status === 'success') {
-        setAnalysisResult(res.data);
-        setScanId(res.data?.scanId || null);
-        setConsumed(false);
-        loadHistory();
-        // Hemen AI öneri de al
-        if (res.data?.food?._id) {
-          fetchAIRecommendation(res.data.food._id, servingSize);
-        }
-      } else {
-        setError(res.message || 'Etiket analizi başarısız oldu.');
-      }
-    } catch (err: any) {
-      setError(err.message || 'Analiz sırasında hata oluştu.');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleOcrResult = async (text: string, isLabelOnly: boolean = false) => {
     if (isLabelOnly) {
@@ -576,8 +547,8 @@ export default function Analysis() {
           {mode === 'barcode' && !needsOcr && (
             <div className="mt-6 max-w-2xl mx-auto">
               <button
-                onClick={mode === 'label' ? handleLabelAnalyze : handleScan}
-                disabled={loading || (mode === 'barcode' ? !barcode : !labelText)}
+                onClick={() => handleScan()}
+                disabled={loading || !barcode}
                 className="w-full px-8 py-4 hero-gradient text-white font-extrabold text-lg rounded-2xl hover:scale-[1.01] transition-all disabled:opacity-50 disabled:hover:scale-100 shadow-lg flex items-center justify-center gap-2"
               >
                 {loading ? (
@@ -1235,7 +1206,7 @@ export default function Analysis() {
               Tarama Geçmişim
             </h2>
             <p className="text-sm text-on-surface-variant mt-1">
-              Taradığın ürünler burada saklanır. <strong>"Tükettim"</strong> dediğin kayıtlar günlük kalori sayacına eklenir.
+              Taradığın ürünler burada 24 saat boyunca saklanır. <strong>"Tükettim"</strong> dediğin kayıtlar günlük kalori sayacına eklenir.
             </p>
           </div>
           <div className="flex items-center gap-1 bg-surface-container rounded-full p-1 text-xs font-bold flex-wrap">

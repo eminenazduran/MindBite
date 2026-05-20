@@ -22,7 +22,6 @@ export default function BarcodeScanner({ open, onClose, onDetected }: Props) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [scanMode, setScanMode] = useState<'camera' | 'photo'>('camera');
   const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(null);
-  const [photoFileName, setPhotoFileName] = useState<string | null>(null);
 
   const [devices, setDevices] = useState<DeviceInfo[]>([]);
   const [activeDeviceId, setActiveDeviceId] = useState<string | null>(null);
@@ -92,7 +91,7 @@ export default function BarcodeScanner({ open, onClose, onDetected }: Props) {
     let cancelled = false;
 
     readerRef.current
-      .decodeFromVideoDevice(activeDeviceId, videoRef.current, (result, err, controls) => {
+      .decodeFromVideoDevice(activeDeviceId, videoRef.current, (result, _err, controls) => {
         if (cancelled) return;
         controlsRef.current = controls;
 
@@ -137,7 +136,6 @@ export default function BarcodeScanner({ open, onClose, onDetected }: Props) {
         try { URL.revokeObjectURL(photoPreviewUrl); } catch { /* yoksay */ }
       }
       setPhotoPreviewUrl(null);
-      setPhotoFileName(null);
       detectedRef.current = false;
       setStatus('idle');
       setError(null);
@@ -177,7 +175,6 @@ export default function BarcodeScanner({ open, onClose, onDetected }: Props) {
 
     const url = URL.createObjectURL(file);
     setPhotoPreviewUrl(url);
-    setPhotoFileName(file.name || 'Fotoğraf');
 
     try {
       const img = new Image();

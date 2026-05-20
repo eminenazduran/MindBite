@@ -2,19 +2,14 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { fetchUser, fetchHealthScore, getScanHistory, fetchDailyAdvice } from '../api';
 import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
-
 export default function Landing() {
   const { user: authUser } = useAuth();
-  const { theme, toggleTheme } = useTheme();
   const isLoggedIn = Boolean(authUser);
 
   const [stats, setStats] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (isLoggedIn && authUser) {
-      setLoading(true);
 
       const getCachedAdvice = async () => {
         const cacheKey = `ai_advice_${authUser.id}`;
@@ -59,7 +54,7 @@ export default function Landing() {
           history: s.data,
           advice: a?.data
         });
-      }).finally(() => setLoading(false));
+      });
     }
   }, [isLoggedIn, authUser]);
 

@@ -14,7 +14,12 @@ export const getScanHistory = async (req: Request, res: Response) => {
     const userId = (req as any).userId || req.params.userId;
     const limit = parseInt(req.query.limit as string) || 20;
 
-    const history = await ScanHistory.find({ userId })
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+    const history = await ScanHistory.find({
+      userId,
+      createdAt: { $gte: twentyFourHoursAgo }
+    })
       .populate('foodId', 'barcode productName calories protein carbohydrates fat ingredients eCodes allergens isGeneric')
       .sort({ createdAt: -1 })
       .limit(limit)

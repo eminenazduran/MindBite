@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { fetchUser, getScanHistory, fetchDailyAdvice, logNaturalMeal, fetchHealthScore, unmarkScanConsumed, deleteScan } from '../api';
+import { fetchUser, getScanHistory, logNaturalMeal, fetchHealthScore, unmarkScanConsumed, deleteScan } from '../api';
 import { useAuth } from '../context/AuthContext';
 import NotificationBanners from '../components/NotificationBanners';
 import WeeklyReport from '../components/WeeklyReport';
@@ -10,7 +10,6 @@ export default function Dashboard() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [history, setHistory] = useState<any[]>([]);
-  const [advice, setAdvice] = useState<any>(null);
   const [healthScore, setHealthScore] = useState<any>(null);
   const [foodName, setFoodName] = useState('');
   const [quantity, setQuantity] = useState<string>('1');
@@ -39,16 +38,14 @@ export default function Dashboard() {
     if (!authUser) return;
     setLoading(true);
     try {
-      const [userRes, historyRes, adviceRes, healthRes] = await Promise.all([
+      const [userRes, historyRes, healthRes] = await Promise.all([
         fetchUser(authUser.id),
         getScanHistory(authUser.id, 20),
-        fetchDailyAdvice(),
         fetchHealthScore(authUser.id, 7)
       ]);
 
       if (userRes.status === 'success') setUser(userRes.data);
       if (historyRes.status === 'success') setHistory(historyRes.data);
-      if (adviceRes.status === 'success') setAdvice(adviceRes.data);
       if (healthRes.status === 'success') setHealthScore(healthRes.data);
     } catch (err) {
       console.error('Dashboard yükleme hatası:', err);
